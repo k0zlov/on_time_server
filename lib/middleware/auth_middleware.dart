@@ -18,6 +18,7 @@ Middleware authMiddleware({
 
       // Variables to store the access token and user ID.
       final String accessToken;
+
       final User? user;
 
       try {

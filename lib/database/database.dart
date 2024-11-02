@@ -1,5 +1,10 @@
 import 'package:drift/drift.dart';
 import 'package:drift_postgres/drift_postgres.dart';
+import 'package:on_time_server/tables/event_hosts.dart';
+import 'package:on_time_server/tables/events.dart';
+import 'package:on_time_server/tables/timetable_members.dart';
+import 'package:on_time_server/tables/timetables.dart';
+import 'package:on_time_server/tables/users.dart';
 
 part 'database.g.dart';
 
@@ -8,7 +13,15 @@ part 'database.g.dart';
 ///
 /// This class extends the generated _$Database class to include
 /// custom methods and properties.
-@DriftDatabase()
+@DriftDatabase(
+  tables: [
+    Users,
+    Events,
+    EventHosts,
+    TimetableMembers,
+    Timetables,
+  ],
+)
 class Database extends _$Database {
   /// Constructs a [Database] instance using the provided database connection.
   Database(super.e);
@@ -19,5 +32,5 @@ class Database extends _$Database {
   /// Increment this version whenever there are changes to the table definitions or
   /// new tables are added.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 }

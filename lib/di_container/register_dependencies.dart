@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:dotenv/dotenv.dart';
-import 'package:drift/drift.dart';
 import 'package:drift_postgres/drift_postgres.dart';
 import 'package:get_it/get_it.dart';
 import 'package:on_time_server/database/database.dart';
 import 'package:on_time_server/middleware/auth_middleware.dart';
 import 'package:on_time_server/middleware/error_middleware.dart';
 import 'package:on_time_server/middleware/headers_middleware.dart';
+import 'package:on_time_server/routes/auth_route.dart';
 import 'package:on_time_server/routes/server_route.dart';
 import 'package:on_time_server/server/server.dart';
 import 'package:on_time_server/server/server_config.dart';
@@ -28,7 +28,7 @@ final GetIt getIt = GetIt.instance;
 
 /// Loading environment variables
 final DotEnv _env = DotEnv(includePlatformEnvironment: true)
-  ..load(['../../.env']);
+  ..load(['.env']);
 
 String _orElse() => '';
 
@@ -48,7 +48,9 @@ ChatServer _server() {
   final port = int.parse(Platform.environment['PORT'] ?? '8080');
 
   final ChatServer server = ChatServer(
-    routes: <ServerRoute>[],
+    routes: <ServerRoute>[
+      getIt(instanceName: 'auth-route'),
+    ],
     middlewares: <Middleware>[
       getIt(instanceName: 'headers-middleware'),
       logRequests(),

@@ -15,6 +15,7 @@ Future<void> _database() async {
     username: username,
   );
 
+
   final Database database = Database(
     PgDatabase(
       endpoint: endpoint,
@@ -28,7 +29,7 @@ Future<void> _database() async {
   );
 
   try {
-    await database.posts.all().get();
+    // await database.customStatement('SELECT 1');
     print('Connected to database.');
   } catch (e) {
     print('Could not connect to database.');
