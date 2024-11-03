@@ -5,6 +5,7 @@ void _controllers() {
     () => AuthControllerImpl(
       database: getIt(),
       tokenService: getIt(),
+      mailService: getIt(),
       activatinRedirectUrl: 'https://github.com/',
     ),
   );

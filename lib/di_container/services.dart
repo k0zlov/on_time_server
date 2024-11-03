@@ -20,10 +20,30 @@ void _services() {
     expiresIn: const Duration(days: 7),
   );
 
-  getIt.registerLazySingleton<TokenService>(
-    () => TokenServiceImpl(
-      refreshClient: refreshClient,
-      accessClient: accessClient,
-    ),
-  );
+  final String port = _env.getOrElse('SMTP_PORT', _orElse);
+  final String host = _env.getOrElse('SMTP_HOST', _orElse);
+  final String login = _env.getOrElse('SMTP_LOGIN', _orElse);
+  final String password = _env.getOrElse('SMTP_PASSWORD', _orElse);
+  final String senderName = _env.getOrElse('SENDER_NAME', _orElse);
+  final String senderEmail = _env.getOrElse('SENDER_ADDRESS', _orElse);
+  final String baseUrl = _env.getOrElse('BASE_URL', _orElse);
+
+  getIt
+    ..registerLazySingleton<TokenService>(
+      () => TokenServiceImpl(
+        refreshClient: refreshClient,
+        accessClient: accessClient,
+      ),
+    )
+    ..registerLazySingleton<MailService>(
+      () => MailServiceImpl(
+        port: int.tryParse(port) ?? 587,
+        host: host,
+        login: login,
+        password: password,
+        senderName: senderName,
+        senderEmail: senderEmail,
+        baseUrl: baseUrl,
+      ),
+    );
 }

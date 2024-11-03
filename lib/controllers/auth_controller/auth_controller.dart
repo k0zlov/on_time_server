@@ -1,6 +1,8 @@
 import 'package:shelf/shelf.dart';
 
 abstract interface class AuthController {
+  Future<Response> getUser(Request request);
+
   Future<Response> register(Request request);
 
   Future<Response> login(Request request);

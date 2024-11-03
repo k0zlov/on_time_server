@@ -35,6 +35,9 @@ extension UserDataExtension on User {
     return {
       ...toJson(),
       'createdAt': createdAt.dateTime.toIso8601String(),
-    };
+    }
+      ..remove('refreshToken')
+      ..remove('activationCode')
+      ..remove('password');
   }
 }

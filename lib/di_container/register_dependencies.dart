@@ -14,6 +14,7 @@ import 'package:on_time_server/routes/auth_route.dart';
 import 'package:on_time_server/routes/server_route.dart';
 import 'package:on_time_server/server/server.dart';
 import 'package:on_time_server/server/server_config.dart';
+import 'package:on_time_server/services/mail_service.dart';
 import 'package:on_time_server/services/token_service.dart';
 import 'package:on_time_server/utils/jwt_client.dart';
 import 'package:postgres/postgres.dart';

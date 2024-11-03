@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
@@ -5,7 +6,9 @@ import 'package:on_time_server/controllers/auth_controller/auth_controller.dart'
 import 'package:on_time_server/database/database.dart';
 import 'package:on_time_server/database/extensions/user_extension.dart';
 import 'package:on_time_server/exceptions/api_exception.dart';
+import 'package:on_time_server/services/mail_service.dart';
 import 'package:on_time_server/services/token_service.dart';
+import 'package:on_time_server/tables/users.dart';
 import 'package:on_time_server/utils/cookie.dart';
 import 'package:on_time_server/utils/request_validator.dart';
 import 'package:shelf/shelf.dart';
@@ -15,14 +18,23 @@ class AuthControllerImpl implements AuthController {
   AuthControllerImpl({
     required this.database,
     required this.tokenService,
+    required this.mailService,
     required this.activatinRedirectUrl,
   });
-
-  final String activatinRedirectUrl;
 
   final Database database;
 
   final TokenService tokenService;
+
+  final MailService mailService;
+
+  final String activatinRedirectUrl;
+
+  @override
+  Future<Response> getUser(Request request) async {
+    final User user = request.context['user']! as User;
+    return Response.ok(jsonEncode(user.toResponse()));
+  }
 
   @override
   Future<Response> register(Request request) async {
@@ -44,6 +56,8 @@ class AuthControllerImpl implements AuthController {
       );
     }
 
+    final String activationCode = const UuidV4().generate();
+
     String? accessToken;
     String? refreshToken;
 
@@ -56,7 +70,7 @@ class AuthControllerImpl implements AuthController {
             password: password,
             email: email,
             refreshToken: '',
-            activationCode: const UuidV4().generate(),
+            activationCode: activationCode,
           ),
         );
 
@@ -86,6 +100,13 @@ class AuthControllerImpl implements AuthController {
       'accessToken': accessToken,
       'refreshToken': refreshToken,
     };
+
+    unawaited(
+      mailService.sendActivationLetter(
+        email: email,
+        activationCode: activationCode,
+      ),
+    );
 
     return Response.ok(jsonEncode(response));
   }
