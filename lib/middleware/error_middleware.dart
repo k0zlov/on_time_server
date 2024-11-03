@@ -6,6 +6,9 @@ import 'package:shelf/shelf.dart';
 Middleware errorMiddleware() {
   return (Handler innerHandler) {
     return (Request request) async {
+      if (request.headers['Upgrade'] == 'websocket') {
+        return await innerHandler(request);
+      }
       try {
         // Process the request with the inner handler.
         return await innerHandler(request);

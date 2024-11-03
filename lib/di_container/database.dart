@@ -29,7 +29,7 @@ Future<void> _database() async {
   );
 
   try {
-    // await database.customStatement('SELECT 1');
+    await database.customStatement('SELECT 1');
     print('Connected to database.');
   } catch (e) {
     print('Could not connect to database.');

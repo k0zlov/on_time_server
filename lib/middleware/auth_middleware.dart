@@ -1,4 +1,5 @@
 import 'package:on_time_server/database/database.dart';
+import 'package:on_time_server/database/extensions/user_extension.dart';
 import 'package:on_time_server/exceptions/api_exception.dart';
 import 'package:on_time_server/services/token_service.dart';
 import 'package:shelf/shelf.dart';
@@ -32,23 +33,23 @@ Middleware authMiddleware({
         final int userId = tokenService.getUserIdFromAccessToken(accessToken)!;
 
         // Retrieve the user from database by userId
-        // user = await database.getUserFromId(userId: userId);
-        // if (user == null) throw Exception();
+        user = await database.getUserOrNull((tbl) => tbl.id.equals(userId));
+        if (user == null) throw Exception();
       } catch (e) {
         // Throw an unauthorized exception if any error occurs.
         throw const ApiException.unauthorized();
       }
 
       // Create a new request with the user added to the context.
-      // final newRequest = request.change(
-      //   context: {
-      //     'user': user,
-      //     ...request.context,
-      //   },
-      // );
+      final newRequest = request.change(
+        context: {
+          'user': user,
+          ...request.context,
+        },
+      );
 
       // Call the inner handler with the new request.
-      return await innerHandler(request);
+      return await innerHandler(newRequest);
     };
   };
 }

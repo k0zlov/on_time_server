@@ -4,6 +4,8 @@ import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:dotenv/dotenv.dart';
 import 'package:drift_postgres/drift_postgres.dart';
 import 'package:get_it/get_it.dart';
+import 'package:on_time_server/controllers/auth_controller/auth_controller.dart';
+import 'package:on_time_server/controllers/auth_controller/auth_controller_impl.dart';
 import 'package:on_time_server/database/database.dart';
 import 'package:on_time_server/middleware/auth_middleware.dart';
 import 'package:on_time_server/middleware/error_middleware.dart';
@@ -52,9 +54,9 @@ ChatServer _server() {
       getIt(instanceName: 'auth-route'),
     ],
     middlewares: <Middleware>[
-      getIt(instanceName: 'headers-middleware'),
       logRequests(),
       errorMiddleware(),
+      getIt(instanceName: 'headers-middleware'),
     ],
     config: ServerConfig(
       ip: ip,

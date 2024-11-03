@@ -1,7 +1,13 @@
 import 'package:shelf/shelf.dart';
 
-class AuthController {
-  Future<Response> first(Request request) async {
-    return Response.ok('Nice !');
-  }
+abstract interface class AuthController {
+  Future<Response> register(Request request);
+
+  Future<Response> login(Request request);
+
+  Future<Response> logout(Request request);
+
+  Future<Response> refresh(Request request);
+
+  Future<Response> activation(Request request, String code);
 }
