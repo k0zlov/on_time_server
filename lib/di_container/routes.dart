@@ -12,6 +12,7 @@ void _routes() {
     ..registerLazySingleton<ServerRoute>(
       instanceName: 'timetables-route',
       () => TimetablesRoute(
+        socket: getIt(),
         controller: getIt(),
         middlewares: [getIt(instanceName: 'auth-middleware')],
       ),

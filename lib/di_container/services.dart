@@ -12,7 +12,7 @@ void _services() {
 
   final JwtClient accessClient = JwtClient(
     secretKey: SecretKey(accessSecret),
-    expiresIn: const Duration(minutes: 30),
+    expiresIn: const Duration(hours: 10),
   );
 
   final JwtClient refreshClient = JwtClient(

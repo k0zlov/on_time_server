@@ -7,4 +7,10 @@ extension MemberExtension on Database {
   ) {
     return (timetableMembers.select()..where(filter)).getSingleOrNull();
   }
+
+  Future<List<TimetableMember>> getAllTimetableMembers(
+    Expression<bool> Function($TimetableMembersTable) filter,
+  ) {
+    return (timetableMembers.select()..where(filter)).get();
+  }
 }

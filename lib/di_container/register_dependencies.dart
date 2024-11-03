@@ -19,22 +19,28 @@ import 'package:on_time_server/server/server.dart';
 import 'package:on_time_server/server/server_config.dart';
 import 'package:on_time_server/services/mail_service.dart';
 import 'package:on_time_server/services/token_service.dart';
+import 'package:on_time_server/sockets/timetables_socket.dart';
 import 'package:on_time_server/utils/jwt_client.dart';
 import 'package:postgres/postgres.dart';
 import 'package:shelf/shelf.dart';
 
 part 'controllers.dart';
+
 part 'database.dart';
+
 part 'middleware.dart';
+
 part 'routes.dart';
+
 part 'services.dart';
+
+part 'sockets.dart';
 
 /// GetIt instance
 final GetIt getIt = GetIt.instance;
 
 /// Loading environment variables
-final DotEnv _env = DotEnv(includePlatformEnvironment: true)
-  ..load(['.env']);
+final DotEnv _env = DotEnv(includePlatformEnvironment: true)..load(['.env']);
 
 String _orElse() => '';
 
@@ -43,6 +49,7 @@ Future<ChatServer> registerDependencies() async {
 
   _services();
   _controllers();
+  _sockets();
   _middleware();
   _routes();
 

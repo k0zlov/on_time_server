@@ -13,6 +13,7 @@ void _controllers() {
     ..registerLazySingleton<TimetablesController>(
       () => TimetablesControllerImpl(
         database: getIt(),
+        socket: getIt(),
         websiteBaseUrl: 'https://github.com/',
       ),
     );

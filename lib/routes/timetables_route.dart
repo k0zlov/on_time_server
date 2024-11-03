@@ -2,15 +2,19 @@ import 'package:on_time_server/controllers/timetables_controller/timetables_cont
 import 'package:on_time_server/middleware/middleware_extension.dart';
 import 'package:on_time_server/middleware/validator_middleware.dart';
 import 'package:on_time_server/routes/server_route.dart';
+import 'package:on_time_server/sockets/timetables_socket.dart';
 import 'package:on_time_server/utils/request_validator.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 class TimetablesRoute extends ServerRoute {
   TimetablesRoute({
+    required this.socket,
     required this.controller,
     super.middlewares,
   });
+
+  final TimetablesSocket socket;
 
   final TimetablesController controller;
 
@@ -47,6 +51,7 @@ class TimetablesRoute extends ServerRoute {
     final Middleware updateMw = validatorMiddleware(bodyParams: updateParams);
 
     return router
+      ..get('/socket', socket.connect)
       ..get('/invitation/<code>', controller.invitation)
       ..putMw('/update', controller.update, [updateMw])
       ..postMw('/create', controller.create, [createMw])

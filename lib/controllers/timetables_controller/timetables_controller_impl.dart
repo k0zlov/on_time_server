@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
@@ -7,6 +8,7 @@ import 'package:on_time_server/database/extensions/member_extension.dart';
 import 'package:on_time_server/database/extensions/timetable_extension.dart';
 import 'package:on_time_server/exceptions/api_exception.dart';
 import 'package:on_time_server/models/timetable_model.dart';
+import 'package:on_time_server/sockets/timetables_socket.dart';
 import 'package:on_time_server/utils/date_time_extension.dart';
 import 'package:on_time_server/utils/request_validator.dart';
 import 'package:shelf/shelf.dart';
@@ -16,7 +18,10 @@ class TimetablesControllerImpl implements TimetablesController {
   const TimetablesControllerImpl({
     required this.websiteBaseUrl,
     required this.database,
+    required this.socket,
   });
+
+  final TimetablesSocket socket;
 
   final Database database;
 
@@ -98,6 +103,11 @@ class TimetablesControllerImpl implements TimetablesController {
         'Only owner can delete timetable.',
       );
     }
+
+    await socket.sendUpdate(
+      timetableId: timetableId,
+      eventType: TimetableSocketEventType.delete,
+    );
 
     try {
       await database.timetables.deleteWhere(
@@ -181,6 +191,7 @@ class TimetablesControllerImpl implements TimetablesController {
         'Could not update timetable.',
       );
     }
+    unawaited(socket.sendUpdate(timetableId: timetableId));
 
     return Response.ok('Timetable updated successfully.');
   }
@@ -218,6 +229,10 @@ class TimetablesControllerImpl implements TimetablesController {
         'Could not leave timetable.',
       );
     }
+
+    unawaited(
+      socket.sendUpdate(timetableId: timetableId, userToDelete: user.id),
+    );
 
     return Response.ok('Successfully left the timetable.');
   }
@@ -257,6 +272,8 @@ class TimetablesControllerImpl implements TimetablesController {
         'Could not add user to timetable.',
       );
     }
+
+    unawaited(socket.sendUpdate(timetableId: timetable.id));
 
     return Response.found(websiteBaseUrl);
   }
