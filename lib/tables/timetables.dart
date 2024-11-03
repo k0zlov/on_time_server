@@ -6,4 +6,13 @@ class Timetables extends Table {
   TextColumn get title => text().withLength(min: 3)();
 
   TextColumn get description => text().nullable()();
+
+  TextColumn get invitationCode => text().unique()();
+
+  DateTimeColumn get startTime => dateTime()();
+
+  DateTimeColumn get endTime => dateTime()();
+
+  @override
+  Set<Column<Object>>? get primaryKey => {id};
 }

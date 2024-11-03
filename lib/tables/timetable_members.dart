@@ -5,7 +5,13 @@ import 'package:on_time_server/tables/users.dart';
 enum TimetableMemberRoles {
   owner,
   admin,
-  member,
+  member;
+
+  bool get isOwner => this == owner;
+
+  bool get isAdmin => this == owner || this == admin;
+
+  bool get isMember => this == member;
 }
 
 class TimetableMembers extends Table {
@@ -16,9 +22,21 @@ class TimetableMembers extends Table {
       integer().references(Users, #id, onDelete: KeyAction.cascade)();
 
   @ReferenceName('memberTimetables')
-  IntColumn get timetableId => integer().references(Timetables, #id)();
+  IntColumn get timetableId => integer().references(
+        Timetables,
+        #id,
+        onDelete: KeyAction.cascade,
+      )();
 
   TextColumn get role => textEnum<TimetableMemberRoles>().withDefault(
         Constant(TimetableMemberRoles.member.name),
       )();
+
+  @override
+  List<Set<Column<Object>>>? get uniqueKeys => [
+        {userId, timetableId},
+      ];
+
+  @override
+  Set<Column<Object>>? get primaryKey => {id};
 }

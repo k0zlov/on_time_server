@@ -43,7 +43,7 @@ class AuthRoute extends ServerRoute {
 
     return router
       ..getMw('/', controller.getUser, [authMiddleware])
-      ..get('/activation/<activation>', controller.activation)
+      ..get('/activation/<code>', controller.activation)
       ..get('/refresh', controller.refresh)
       ..postMw('/register', controller.register, [regValidator])
       ..postMw('/login', controller.login, [loginValidator])

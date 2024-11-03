@@ -5,7 +5,14 @@ class EventHosts extends Table {
   IntColumn get id => integer().autoIncrement()();
 
   @ReferenceName('eventHostMembers')
-  IntColumn get memberId => integer().references(TimetableMembers, #id)();
+  IntColumn get memberId => integer().references(
+        TimetableMembers,
+        #id,
+        onDelete: KeyAction.cascade,
+      )();
 
   IntColumn get eventId => integer()();
+
+  @override
+  Set<Column<Object>>? get primaryKey => {id};
 }

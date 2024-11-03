@@ -1,0 +1,56 @@
+import 'package:on_time_server/controllers/timetables_controller/timetables_controller.dart';
+import 'package:on_time_server/middleware/middleware_extension.dart';
+import 'package:on_time_server/middleware/validator_middleware.dart';
+import 'package:on_time_server/routes/server_route.dart';
+import 'package:on_time_server/utils/request_validator.dart';
+import 'package:shelf/shelf.dart';
+import 'package:shelf_router/shelf_router.dart';
+
+class TimetablesRoute extends ServerRoute {
+  TimetablesRoute({
+    required this.controller,
+    super.middlewares,
+  });
+
+  final TimetablesController controller;
+
+  @override
+  String get name => 'timetables';
+
+  @override
+  Router configureRouter(Router router) {
+    const createParams = <ValidatorParameter<Object>>[
+      ValidatorParameter<String>(name: 'title'),
+      ValidatorParameter<String>(name: 'description', nullable: true),
+      ValidatorParameter<int>(name: 'startTime'),
+      ValidatorParameter<int>(name: 'endTime'),
+    ];
+
+    final Middleware createMw = validatorMiddleware(bodyParams: createParams);
+
+    const deleteAndLeaveParams = <ValidatorParameter<int>>[
+      ValidatorParameter(name: 'id'),
+    ];
+
+    final Middleware deleteLeaveMw = validatorMiddleware(
+      bodyParams: deleteAndLeaveParams,
+    );
+
+    const updateParams = <ValidatorParameter<Object>>[
+      ValidatorParameter<int>(name: 'id'),
+      ValidatorParameter<String>(name: 'title', nullable: true),
+      ValidatorParameter<String>(name: 'description', nullable: true),
+      ValidatorParameter<int>(name: 'startTime', nullable: true),
+      ValidatorParameter<int>(name: 'endTime', nullable: true),
+    ];
+
+    final Middleware updateMw = validatorMiddleware(bodyParams: updateParams);
+
+    return router
+      ..get('/invitation/<code>', controller.invitation)
+      ..putMw('/update', controller.update, [updateMw])
+      ..postMw('/create', controller.create, [createMw])
+      ..postMw('/leave', controller.leave, [deleteLeaveMw])
+      ..deleteMw('/delete', controller.delete, [deleteLeaveMw]);
+  }
+}

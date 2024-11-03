@@ -512,8 +512,29 @@ class $TimetablesTable extends Timetables
   late final GeneratedColumn<String> description = GeneratedColumn<String>(
       'description', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _invitationCodeMeta =
+      const VerificationMeta('invitationCode');
   @override
-  List<GeneratedColumn> get $columns => [id, title, description];
+  late final GeneratedColumn<String> invitationCode = GeneratedColumn<String>(
+      'invitation_code', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'));
+  static const VerificationMeta _startTimeMeta =
+      const VerificationMeta('startTime');
+  @override
+  late final GeneratedColumn<DateTime> startTime = GeneratedColumn<DateTime>(
+      'start_time', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _endTimeMeta =
+      const VerificationMeta('endTime');
+  @override
+  late final GeneratedColumn<DateTime> endTime = GeneratedColumn<DateTime>(
+      'end_time', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, title, description, invitationCode, startTime, endTime];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -539,6 +560,26 @@ class $TimetablesTable extends Timetables
           description.isAcceptableOrUnknown(
               data['description']!, _descriptionMeta));
     }
+    if (data.containsKey('invitation_code')) {
+      context.handle(
+          _invitationCodeMeta,
+          invitationCode.isAcceptableOrUnknown(
+              data['invitation_code']!, _invitationCodeMeta));
+    } else if (isInserting) {
+      context.missing(_invitationCodeMeta);
+    }
+    if (data.containsKey('start_time')) {
+      context.handle(_startTimeMeta,
+          startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta));
+    } else if (isInserting) {
+      context.missing(_startTimeMeta);
+    }
+    if (data.containsKey('end_time')) {
+      context.handle(_endTimeMeta,
+          endTime.isAcceptableOrUnknown(data['end_time']!, _endTimeMeta));
+    } else if (isInserting) {
+      context.missing(_endTimeMeta);
+    }
     return context;
   }
 
@@ -554,6 +595,12 @@ class $TimetablesTable extends Timetables
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
       description: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      invitationCode: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}invitation_code'])!,
+      startTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}start_time'])!,
+      endTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}end_time'])!,
     );
   }
 
@@ -567,7 +614,16 @@ class Timetable extends DataClass implements Insertable<Timetable> {
   final int id;
   final String title;
   final String? description;
-  const Timetable({required this.id, required this.title, this.description});
+  final String invitationCode;
+  final DateTime startTime;
+  final DateTime endTime;
+  const Timetable(
+      {required this.id,
+      required this.title,
+      this.description,
+      required this.invitationCode,
+      required this.startTime,
+      required this.endTime});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -576,6 +632,9 @@ class Timetable extends DataClass implements Insertable<Timetable> {
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
     }
+    map['invitation_code'] = Variable<String>(invitationCode);
+    map['start_time'] = Variable<DateTime>(startTime);
+    map['end_time'] = Variable<DateTime>(endTime);
     return map;
   }
 
@@ -586,6 +645,9 @@ class Timetable extends DataClass implements Insertable<Timetable> {
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
+      invitationCode: Value(invitationCode),
+      startTime: Value(startTime),
+      endTime: Value(endTime),
     );
   }
 
@@ -596,6 +658,9 @@ class Timetable extends DataClass implements Insertable<Timetable> {
       id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String?>(json['description']),
+      invitationCode: serializer.fromJson<String>(json['invitationCode']),
+      startTime: serializer.fromJson<DateTime>(json['startTime']),
+      endTime: serializer.fromJson<DateTime>(json['endTime']),
     );
   }
   @override
@@ -605,17 +670,26 @@ class Timetable extends DataClass implements Insertable<Timetable> {
       'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String>(title),
       'description': serializer.toJson<String?>(description),
+      'invitationCode': serializer.toJson<String>(invitationCode),
+      'startTime': serializer.toJson<DateTime>(startTime),
+      'endTime': serializer.toJson<DateTime>(endTime),
     };
   }
 
   Timetable copyWith(
           {int? id,
           String? title,
-          Value<String?> description = const Value.absent()}) =>
+          Value<String?> description = const Value.absent(),
+          String? invitationCode,
+          DateTime? startTime,
+          DateTime? endTime}) =>
       Timetable(
         id: id ?? this.id,
         title: title ?? this.title,
         description: description.present ? description.value : this.description,
+        invitationCode: invitationCode ?? this.invitationCode,
+        startTime: startTime ?? this.startTime,
+        endTime: endTime ?? this.endTime,
       );
   Timetable copyWithCompanion(TimetablesCompanion data) {
     return Timetable(
@@ -623,6 +697,11 @@ class Timetable extends DataClass implements Insertable<Timetable> {
       title: data.title.present ? data.title.value : this.title,
       description:
           data.description.present ? data.description.value : this.description,
+      invitationCode: data.invitationCode.present
+          ? data.invitationCode.value
+          : this.invitationCode,
+      startTime: data.startTime.present ? data.startTime.value : this.startTime,
+      endTime: data.endTime.present ? data.endTime.value : this.endTime,
     );
   }
 
@@ -631,54 +710,87 @@ class Timetable extends DataClass implements Insertable<Timetable> {
     return (StringBuffer('Timetable(')
           ..write('id: $id, ')
           ..write('title: $title, ')
-          ..write('description: $description')
+          ..write('description: $description, ')
+          ..write('invitationCode: $invitationCode, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, title, description);
+  int get hashCode =>
+      Object.hash(id, title, description, invitationCode, startTime, endTime);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Timetable &&
           other.id == this.id &&
           other.title == this.title &&
-          other.description == this.description);
+          other.description == this.description &&
+          other.invitationCode == this.invitationCode &&
+          other.startTime == this.startTime &&
+          other.endTime == this.endTime);
 }
 
 class TimetablesCompanion extends UpdateCompanion<Timetable> {
   final Value<int> id;
   final Value<String> title;
   final Value<String?> description;
+  final Value<String> invitationCode;
+  final Value<DateTime> startTime;
+  final Value<DateTime> endTime;
   const TimetablesCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.description = const Value.absent(),
+    this.invitationCode = const Value.absent(),
+    this.startTime = const Value.absent(),
+    this.endTime = const Value.absent(),
   });
   TimetablesCompanion.insert({
     this.id = const Value.absent(),
     required String title,
     this.description = const Value.absent(),
-  }) : title = Value(title);
+    required String invitationCode,
+    required DateTime startTime,
+    required DateTime endTime,
+  })  : title = Value(title),
+        invitationCode = Value(invitationCode),
+        startTime = Value(startTime),
+        endTime = Value(endTime);
   static Insertable<Timetable> custom({
     Expression<int>? id,
     Expression<String>? title,
     Expression<String>? description,
+    Expression<String>? invitationCode,
+    Expression<DateTime>? startTime,
+    Expression<DateTime>? endTime,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (title != null) 'title': title,
       if (description != null) 'description': description,
+      if (invitationCode != null) 'invitation_code': invitationCode,
+      if (startTime != null) 'start_time': startTime,
+      if (endTime != null) 'end_time': endTime,
     });
   }
 
   TimetablesCompanion copyWith(
-      {Value<int>? id, Value<String>? title, Value<String?>? description}) {
+      {Value<int>? id,
+      Value<String>? title,
+      Value<String?>? description,
+      Value<String>? invitationCode,
+      Value<DateTime>? startTime,
+      Value<DateTime>? endTime}) {
     return TimetablesCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
+      invitationCode: invitationCode ?? this.invitationCode,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
     );
   }
 
@@ -694,6 +806,15 @@ class TimetablesCompanion extends UpdateCompanion<Timetable> {
     if (description.present) {
       map['description'] = Variable<String>(description.value);
     }
+    if (invitationCode.present) {
+      map['invitation_code'] = Variable<String>(invitationCode.value);
+    }
+    if (startTime.present) {
+      map['start_time'] = Variable<DateTime>(startTime.value);
+    }
+    if (endTime.present) {
+      map['end_time'] = Variable<DateTime>(endTime.value);
+    }
     return map;
   }
 
@@ -702,7 +823,10 @@ class TimetablesCompanion extends UpdateCompanion<Timetable> {
     return (StringBuffer('TimetablesCompanion(')
           ..write('id: $id, ')
           ..write('title: $title, ')
-          ..write('description: $description')
+          ..write('description: $description, ')
+          ..write('invitationCode: $invitationCode, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime')
           ..write(')'))
         .toString();
   }
@@ -729,8 +853,8 @@ class $EventsTable extends Events with TableInfo<$EventsTable, Event> {
       'timetable_id', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES timetables (id)'));
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES timetables (id) ON DELETE CASCADE'));
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
@@ -1045,8 +1169,8 @@ class $TimetableMembersTable extends TimetableMembers
       'timetable_id', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES timetables (id)'));
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES timetables (id) ON DELETE CASCADE'));
   static const VerificationMeta _roleMeta = const VerificationMeta('role');
   @override
   late final GeneratedColumnWithTypeConverter<TimetableMemberRoles, String>
@@ -1091,6 +1215,10 @@ class $TimetableMembersTable extends TimetableMembers
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+        {userId, timetableId},
+      ];
   @override
   TimetableMember map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -1315,7 +1443,7 @@ class $EventHostsTable extends EventHosts
       type: DriftSqlType.int,
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'REFERENCES timetable_members (id)'));
+          'REFERENCES timetable_members (id) ON DELETE CASCADE'));
   static const VerificationMeta _eventIdMeta =
       const VerificationMeta('eventId');
   @override
@@ -1530,10 +1658,31 @@ abstract class _$Database extends GeneratedDatabase {
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
         [
           WritePropagation(
+            on: TableUpdateQuery.onTableName('timetables',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('events', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
             on: TableUpdateQuery.onTableName('users',
                 limitUpdateKind: UpdateKind.delete),
             result: [
               TableUpdate('timetable_members', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('timetables',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('timetable_members', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('timetable_members',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('event_hosts', kind: UpdateKind.delete),
             ],
           ),
         ],
@@ -1851,11 +2000,17 @@ typedef $$TimetablesTableCreateCompanionBuilder = TimetablesCompanion Function({
   Value<int> id,
   required String title,
   Value<String?> description,
+  required String invitationCode,
+  required DateTime startTime,
+  required DateTime endTime,
 });
 typedef $$TimetablesTableUpdateCompanionBuilder = TimetablesCompanion Function({
   Value<int> id,
   Value<String> title,
   Value<String?> description,
+  Value<String> invitationCode,
+  Value<DateTime> startTime,
+  Value<DateTime> endTime,
 });
 
 final class $$TimetablesTableReferences
@@ -1911,6 +2066,16 @@ class $$TimetablesTableFilterComposer
 
   ColumnFilters<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get invitationCode => $composableBuilder(
+      column: $table.invitationCode,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startTime => $composableBuilder(
+      column: $table.startTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get endTime => $composableBuilder(
+      column: $table.endTime, builder: (column) => ColumnFilters(column));
 
   Expression<bool> eventTimetables(
       Expression<bool> Function($$EventsTableFilterComposer f) f) {
@@ -1972,6 +2137,16 @@ class $$TimetablesTableOrderingComposer
 
   ColumnOrderings<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get invitationCode => $composableBuilder(
+      column: $table.invitationCode,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startTime => $composableBuilder(
+      column: $table.startTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get endTime => $composableBuilder(
+      column: $table.endTime, builder: (column) => ColumnOrderings(column));
 }
 
 class $$TimetablesTableAnnotationComposer
@@ -1991,6 +2166,15 @@ class $$TimetablesTableAnnotationComposer
 
   GeneratedColumn<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get invitationCode => $composableBuilder(
+      column: $table.invitationCode, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startTime =>
+      $composableBuilder(column: $table.startTime, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endTime =>
+      $composableBuilder(column: $table.endTime, builder: (column) => column);
 
   Expression<T> eventTimetables<T extends Object>(
       Expression<T> Function($$EventsTableAnnotationComposer a) f) {
@@ -2061,21 +2245,33 @@ class $$TimetablesTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             Value<String> title = const Value.absent(),
             Value<String?> description = const Value.absent(),
+            Value<String> invitationCode = const Value.absent(),
+            Value<DateTime> startTime = const Value.absent(),
+            Value<DateTime> endTime = const Value.absent(),
           }) =>
               TimetablesCompanion(
             id: id,
             title: title,
             description: description,
+            invitationCode: invitationCode,
+            startTime: startTime,
+            endTime: endTime,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required String title,
             Value<String?> description = const Value.absent(),
+            required String invitationCode,
+            required DateTime startTime,
+            required DateTime endTime,
           }) =>
               TimetablesCompanion.insert(
             id: id,
             title: title,
             description: description,
+            invitationCode: invitationCode,
+            startTime: startTime,
+            endTime: endTime,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (

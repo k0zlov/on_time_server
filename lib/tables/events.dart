@@ -6,11 +6,18 @@ class Events extends Table {
   IntColumn get id => integer().autoIncrement()();
 
   @ReferenceName('eventTimetables')
-  IntColumn get timetableId => integer().references(Timetables, #id)();
+  IntColumn get timetableId => integer().references(
+        Timetables,
+        #id,
+        onDelete: KeyAction.cascade,
+      )();
 
   TextColumn get title => text()();
 
   TimestampColumn get endTime => customType(PgTypes.timestampWithTimezone)();
 
   TimestampColumn get startTime => customType(PgTypes.timestampWithTimezone)();
+
+  @override
+  Set<Column<Object>>? get primaryKey => {id};
 }
