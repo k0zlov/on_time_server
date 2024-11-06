@@ -16,5 +16,13 @@ void _routes() {
         controller: getIt(),
         middlewares: [getIt(instanceName: 'auth-middleware')],
       ),
+    )
+    ..registerLazySingleton<ServerRoute>(
+      instanceName: 'events-route',
+      () => EventsRoute(
+        controller: getIt(),
+        hostsController: getIt(),
+        middlewares: [getIt(instanceName: 'auth-middleware')],
+      ),
     );
 }

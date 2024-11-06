@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart';
-import 'package:drift_postgres/drift_postgres.dart';
 import 'package:on_time_server/tables/timetables.dart';
 
 class Events extends Table {
@@ -14,9 +13,13 @@ class Events extends Table {
 
   TextColumn get title => text()();
 
-  TimestampColumn get endTime => customType(PgTypes.timestampWithTimezone)();
+  TextColumn get description => text().nullable()();
 
-  TimestampColumn get startTime => customType(PgTypes.timestampWithTimezone)();
+  IntColumn get day => integer()();
+
+  DateTimeColumn get endTime => dateTime()();
+
+  DateTimeColumn get startTime => dateTime()();
 
   @override
   Set<Column<Object>>? get primaryKey => {id};

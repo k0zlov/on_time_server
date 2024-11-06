@@ -3,11 +3,10 @@ import 'dart:convert';
 import 'package:on_time_server/database/database.dart';
 import 'package:on_time_server/database/extensions/timetable_extension.dart';
 import 'package:on_time_server/models/timetable_model.dart';
+import 'package:on_time_server/models/timetable_socket_model.dart';
 import 'package:on_time_server/sockets/server_socket.dart';
 import 'package:shelf/shelf.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-
-enum TimetableSocketEventType { update, delete }
 
 abstract class TimetablesSocket extends ServerSocket {
   Future<void> sendUpdate({
@@ -40,9 +39,12 @@ class TimetablesSocketImpl extends TimetablesSocket {
       userId: user.id,
     );
 
-    webSocket.sink.add(
-      jsonEncode([...timetables.map((e) => e.toResponse())]),
+    final TimetableSocketModel response = TimetableSocketModel(
+      eventType: TimetableSocketEventType.update,
+      data: timetables,
     );
+
+    webSocket.sink.add(jsonEncode(response.toMap()));
 
     webSocket.stream.listen(
       (_) {},
@@ -70,11 +72,13 @@ class TimetablesSocketImpl extends TimetablesSocket {
       final WebSocketChannel? conn = sockets[m.userId];
       if (conn == null) continue;
 
+      final TimetableSocketModel response = TimetableSocketModel(
+        eventType: eventType,
+        data: [model],
+      );
+
       conn.sink.add(
-        jsonEncode({
-          'event': eventType.name,
-          'data': model.toResponse(),
-        }),
+        jsonEncode(response.toMap()),
       );
     }
     if (userToDelete == null) return;
@@ -83,11 +87,13 @@ class TimetablesSocketImpl extends TimetablesSocket {
 
     if (conn == null) return;
 
+    final TimetableSocketModel response = TimetableSocketModel(
+      eventType: TimetableSocketEventType.delete,
+      data: [model],
+    );
+
     conn.sink.add(
-      jsonEncode({
-        'event': TimetableSocketEventType.delete.name,
-        'data': model.toResponse(),
-      }),
+      jsonEncode(response.toMap()),
     );
   }
 }

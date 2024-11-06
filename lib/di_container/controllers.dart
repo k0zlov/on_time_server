@@ -16,5 +16,17 @@ void _controllers() {
         socket: getIt(),
         websiteBaseUrl: 'https://github.com/',
       ),
+    )
+    ..registerLazySingleton<EventsController>(
+      () => EventsControllerImpl(
+        database: getIt(),
+        socket: getIt(),
+      ),
+    )
+    ..registerLazySingleton<HostsController>(
+      () => HostsControllerImpl(
+        database: getIt(),
+        socket: getIt(),
+      ),
     );
 }

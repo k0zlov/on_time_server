@@ -6,6 +6,10 @@ import 'package:drift_postgres/drift_postgres.dart';
 import 'package:get_it/get_it.dart';
 import 'package:on_time_server/controllers/auth_controller/auth_controller.dart';
 import 'package:on_time_server/controllers/auth_controller/auth_controller_impl.dart';
+import 'package:on_time_server/controllers/events_controller/events_controller.dart';
+import 'package:on_time_server/controllers/events_controller/events_controller_impl.dart';
+import 'package:on_time_server/controllers/hosts_controller/hosts_controller.dart';
+import 'package:on_time_server/controllers/hosts_controller/hosts_controller_impl.dart';
 import 'package:on_time_server/controllers/timetables_controller/timetables_controller.dart';
 import 'package:on_time_server/controllers/timetables_controller/timetables_controller_impl.dart';
 import 'package:on_time_server/database/database.dart';
@@ -13,6 +17,7 @@ import 'package:on_time_server/middleware/auth_middleware.dart';
 import 'package:on_time_server/middleware/error_middleware.dart';
 import 'package:on_time_server/middleware/headers_middleware.dart';
 import 'package:on_time_server/routes/auth_route.dart';
+import 'package:on_time_server/routes/events_route.dart';
 import 'package:on_time_server/routes/server_route.dart';
 import 'package:on_time_server/routes/timetables_route.dart';
 import 'package:on_time_server/server/server.dart';
@@ -63,6 +68,7 @@ ChatServer _server() {
   final ChatServer server = ChatServer(
     routes: <ServerRoute>[
       getIt(instanceName: 'auth-route'),
+      getIt(instanceName: 'events-route'),
       getIt(instanceName: 'timetables-route'),
     ],
     middlewares: <Middleware>[

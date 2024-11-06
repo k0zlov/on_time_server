@@ -8,6 +8,7 @@ import 'package:on_time_server/database/extensions/member_extension.dart';
 import 'package:on_time_server/database/extensions/timetable_extension.dart';
 import 'package:on_time_server/exceptions/api_exception.dart';
 import 'package:on_time_server/models/timetable_model.dart';
+import 'package:on_time_server/models/timetable_socket_model.dart';
 import 'package:on_time_server/sockets/timetables_socket.dart';
 import 'package:on_time_server/utils/date_time_extension.dart';
 import 'package:on_time_server/utils/request_validator.dart';
@@ -38,6 +39,13 @@ class TimetablesControllerImpl implements TimetablesController {
     final String? description = body['description'] as String?;
     final int rawStartTime = body['startTime'] as int;
     final int rawEndTime = body['endTime'] as int;
+
+    if (rawStartTime > 86400 || rawStartTime < 0) {
+      throw const ApiException.badRequest('Invalid start time.');
+    }
+    if (rawEndTime > 86400 || rawEndTime < 0) {
+      throw const ApiException.badRequest('Invalid end time.');
+    }
 
     final DateTime startTime =
         DateTimeExtension.fromSecondsSinceMidnight(rawStartTime);
@@ -136,6 +144,24 @@ class TimetablesControllerImpl implements TimetablesController {
     final int? newStartTime = body['startTime'] as int?;
     final int? newEndTime = body['endTime'] as int?;
 
+    if (newTitle != null && newTitle.length < 3) {
+      throw const ApiException.badRequest(
+        'Timetable title should be at least 3 symbols length.',
+      );
+    }
+
+    if (newStartTime != null) {
+      if (newStartTime > 86400 || newStartTime < 0) {
+        throw const ApiException.badRequest('Invalid start time.');
+      }
+    }
+
+    if (newEndTime != null) {
+      if (newEndTime > 86400 || newEndTime < 0) {
+        throw const ApiException.badRequest('Invalid end time.');
+      }
+    }
+
     final TimetableMember? member = await database.getTimetableMember(
       (tbl) => tbl.userId.equals(user.id) & tbl.timetableId.equals(timetableId),
     );
@@ -149,6 +175,7 @@ class TimetablesControllerImpl implements TimetablesController {
         'Only the owner can update the timetable.',
       );
     }
+
     final Timetable? timetable = await (database.timetables.select()
           ..where((tbl) => tbl.id.equals(timetableId)))
         .getSingleOrNull();

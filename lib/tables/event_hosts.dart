@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:on_time_server/tables/events.dart';
 import 'package:on_time_server/tables/timetable_members.dart';
 
 class EventHosts extends Table {
@@ -11,7 +12,17 @@ class EventHosts extends Table {
         onDelete: KeyAction.cascade,
       )();
 
-  IntColumn get eventId => integer()();
+  @ReferenceName('eventHostEvent')
+  IntColumn get eventId => integer().references(
+        Events,
+        #id,
+        onDelete: KeyAction.cascade,
+      )();
+
+  @override
+  List<Set<Column<Object>>>? get uniqueKeys => [
+        {memberId, eventId},
+      ];
 
   @override
   Set<Column<Object>>? get primaryKey => {id};

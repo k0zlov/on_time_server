@@ -20,6 +20,7 @@ Future<void> _database() async {
     PgDatabase(
       endpoint: endpoint,
       settings: const ConnectionSettings(
+
         // If you expect to talk to a Postgres database over a public connection,
         // please use SslMode.verifyFull instead.
         sslMode: SslMode.disable,

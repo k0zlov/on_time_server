@@ -860,21 +860,32 @@ class $EventsTable extends Events with TableInfo<$EventsTable, Event> {
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
       'title', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _dayMeta = const VerificationMeta('day');
+  @override
+  late final GeneratedColumn<int> day = GeneratedColumn<int>(
+      'day', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _endTimeMeta =
       const VerificationMeta('endTime');
   @override
-  late final GeneratedColumn<PgDateTime> endTime = GeneratedColumn<PgDateTime>(
+  late final GeneratedColumn<DateTime> endTime = GeneratedColumn<DateTime>(
       'end_time', aliasedName, false,
-      type: PgTypes.timestampWithTimezone, requiredDuringInsert: true);
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   static const VerificationMeta _startTimeMeta =
       const VerificationMeta('startTime');
   @override
-  late final GeneratedColumn<PgDateTime> startTime =
-      GeneratedColumn<PgDateTime>('start_time', aliasedName, false,
-          type: PgTypes.timestampWithTimezone, requiredDuringInsert: true);
+  late final GeneratedColumn<DateTime> startTime = GeneratedColumn<DateTime>(
+      'start_time', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, timetableId, title, endTime, startTime];
+      [id, timetableId, title, description, day, endTime, startTime];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -901,6 +912,18 @@ class $EventsTable extends Events with TableInfo<$EventsTable, Event> {
           _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
     } else if (isInserting) {
       context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('day')) {
+      context.handle(
+          _dayMeta, day.isAcceptableOrUnknown(data['day']!, _dayMeta));
+    } else if (isInserting) {
+      context.missing(_dayMeta);
     }
     if (data.containsKey('end_time')) {
       context.handle(_endTimeMeta,
@@ -929,10 +952,14 @@ class $EventsTable extends Events with TableInfo<$EventsTable, Event> {
           .read(DriftSqlType.int, data['${effectivePrefix}timetable_id'])!,
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
-      endTime: attachedDatabase.typeMapping.read(
-          PgTypes.timestampWithTimezone, data['${effectivePrefix}end_time'])!,
-      startTime: attachedDatabase.typeMapping.read(
-          PgTypes.timestampWithTimezone, data['${effectivePrefix}start_time'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      day: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}day'])!,
+      endTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}end_time'])!,
+      startTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}start_time'])!,
     );
   }
 
@@ -946,12 +973,16 @@ class Event extends DataClass implements Insertable<Event> {
   final int id;
   final int timetableId;
   final String title;
-  final PgDateTime endTime;
-  final PgDateTime startTime;
+  final String? description;
+  final int day;
+  final DateTime endTime;
+  final DateTime startTime;
   const Event(
       {required this.id,
       required this.timetableId,
       required this.title,
+      this.description,
+      required this.day,
       required this.endTime,
       required this.startTime});
   @override
@@ -960,10 +991,12 @@ class Event extends DataClass implements Insertable<Event> {
     map['id'] = Variable<int>(id);
     map['timetable_id'] = Variable<int>(timetableId);
     map['title'] = Variable<String>(title);
-    map['end_time'] =
-        Variable<PgDateTime>(endTime, PgTypes.timestampWithTimezone);
-    map['start_time'] =
-        Variable<PgDateTime>(startTime, PgTypes.timestampWithTimezone);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['day'] = Variable<int>(day);
+    map['end_time'] = Variable<DateTime>(endTime);
+    map['start_time'] = Variable<DateTime>(startTime);
     return map;
   }
 
@@ -972,6 +1005,10 @@ class Event extends DataClass implements Insertable<Event> {
       id: Value(id),
       timetableId: Value(timetableId),
       title: Value(title),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      day: Value(day),
       endTime: Value(endTime),
       startTime: Value(startTime),
     );
@@ -984,8 +1021,10 @@ class Event extends DataClass implements Insertable<Event> {
       id: serializer.fromJson<int>(json['id']),
       timetableId: serializer.fromJson<int>(json['timetableId']),
       title: serializer.fromJson<String>(json['title']),
-      endTime: serializer.fromJson<PgDateTime>(json['endTime']),
-      startTime: serializer.fromJson<PgDateTime>(json['startTime']),
+      description: serializer.fromJson<String?>(json['description']),
+      day: serializer.fromJson<int>(json['day']),
+      endTime: serializer.fromJson<DateTime>(json['endTime']),
+      startTime: serializer.fromJson<DateTime>(json['startTime']),
     );
   }
   @override
@@ -995,8 +1034,10 @@ class Event extends DataClass implements Insertable<Event> {
       'id': serializer.toJson<int>(id),
       'timetableId': serializer.toJson<int>(timetableId),
       'title': serializer.toJson<String>(title),
-      'endTime': serializer.toJson<PgDateTime>(endTime),
-      'startTime': serializer.toJson<PgDateTime>(startTime),
+      'description': serializer.toJson<String?>(description),
+      'day': serializer.toJson<int>(day),
+      'endTime': serializer.toJson<DateTime>(endTime),
+      'startTime': serializer.toJson<DateTime>(startTime),
     };
   }
 
@@ -1004,12 +1045,16 @@ class Event extends DataClass implements Insertable<Event> {
           {int? id,
           int? timetableId,
           String? title,
-          PgDateTime? endTime,
-          PgDateTime? startTime}) =>
+          Value<String?> description = const Value.absent(),
+          int? day,
+          DateTime? endTime,
+          DateTime? startTime}) =>
       Event(
         id: id ?? this.id,
         timetableId: timetableId ?? this.timetableId,
         title: title ?? this.title,
+        description: description.present ? description.value : this.description,
+        day: day ?? this.day,
         endTime: endTime ?? this.endTime,
         startTime: startTime ?? this.startTime,
       );
@@ -1019,6 +1064,9 @@ class Event extends DataClass implements Insertable<Event> {
       timetableId:
           data.timetableId.present ? data.timetableId.value : this.timetableId,
       title: data.title.present ? data.title.value : this.title,
+      description:
+          data.description.present ? data.description.value : this.description,
+      day: data.day.present ? data.day.value : this.day,
       endTime: data.endTime.present ? data.endTime.value : this.endTime,
       startTime: data.startTime.present ? data.startTime.value : this.startTime,
     );
@@ -1030,6 +1078,8 @@ class Event extends DataClass implements Insertable<Event> {
           ..write('id: $id, ')
           ..write('timetableId: $timetableId, ')
           ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('day: $day, ')
           ..write('endTime: $endTime, ')
           ..write('startTime: $startTime')
           ..write(')'))
@@ -1037,7 +1087,8 @@ class Event extends DataClass implements Insertable<Event> {
   }
 
   @override
-  int get hashCode => Object.hash(id, timetableId, title, endTime, startTime);
+  int get hashCode =>
+      Object.hash(id, timetableId, title, description, day, endTime, startTime);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1045,6 +1096,8 @@ class Event extends DataClass implements Insertable<Event> {
           other.id == this.id &&
           other.timetableId == this.timetableId &&
           other.title == this.title &&
+          other.description == this.description &&
+          other.day == this.day &&
           other.endTime == this.endTime &&
           other.startTime == this.startTime);
 }
@@ -1053,12 +1106,16 @@ class EventsCompanion extends UpdateCompanion<Event> {
   final Value<int> id;
   final Value<int> timetableId;
   final Value<String> title;
-  final Value<PgDateTime> endTime;
-  final Value<PgDateTime> startTime;
+  final Value<String?> description;
+  final Value<int> day;
+  final Value<DateTime> endTime;
+  final Value<DateTime> startTime;
   const EventsCompanion({
     this.id = const Value.absent(),
     this.timetableId = const Value.absent(),
     this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.day = const Value.absent(),
     this.endTime = const Value.absent(),
     this.startTime = const Value.absent(),
   });
@@ -1066,23 +1123,30 @@ class EventsCompanion extends UpdateCompanion<Event> {
     this.id = const Value.absent(),
     required int timetableId,
     required String title,
-    required PgDateTime endTime,
-    required PgDateTime startTime,
+    this.description = const Value.absent(),
+    required int day,
+    required DateTime endTime,
+    required DateTime startTime,
   })  : timetableId = Value(timetableId),
         title = Value(title),
+        day = Value(day),
         endTime = Value(endTime),
         startTime = Value(startTime);
   static Insertable<Event> custom({
     Expression<int>? id,
     Expression<int>? timetableId,
     Expression<String>? title,
-    Expression<PgDateTime>? endTime,
-    Expression<PgDateTime>? startTime,
+    Expression<String>? description,
+    Expression<int>? day,
+    Expression<DateTime>? endTime,
+    Expression<DateTime>? startTime,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (timetableId != null) 'timetable_id': timetableId,
       if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (day != null) 'day': day,
       if (endTime != null) 'end_time': endTime,
       if (startTime != null) 'start_time': startTime,
     });
@@ -1092,12 +1156,16 @@ class EventsCompanion extends UpdateCompanion<Event> {
       {Value<int>? id,
       Value<int>? timetableId,
       Value<String>? title,
-      Value<PgDateTime>? endTime,
-      Value<PgDateTime>? startTime}) {
+      Value<String?>? description,
+      Value<int>? day,
+      Value<DateTime>? endTime,
+      Value<DateTime>? startTime}) {
     return EventsCompanion(
       id: id ?? this.id,
       timetableId: timetableId ?? this.timetableId,
       title: title ?? this.title,
+      description: description ?? this.description,
+      day: day ?? this.day,
       endTime: endTime ?? this.endTime,
       startTime: startTime ?? this.startTime,
     );
@@ -1115,13 +1183,17 @@ class EventsCompanion extends UpdateCompanion<Event> {
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (day.present) {
+      map['day'] = Variable<int>(day.value);
+    }
     if (endTime.present) {
-      map['end_time'] =
-          Variable<PgDateTime>(endTime.value, PgTypes.timestampWithTimezone);
+      map['end_time'] = Variable<DateTime>(endTime.value);
     }
     if (startTime.present) {
-      map['start_time'] =
-          Variable<PgDateTime>(startTime.value, PgTypes.timestampWithTimezone);
+      map['start_time'] = Variable<DateTime>(startTime.value);
     }
     return map;
   }
@@ -1132,6 +1204,8 @@ class EventsCompanion extends UpdateCompanion<Event> {
           ..write('id: $id, ')
           ..write('timetableId: $timetableId, ')
           ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('day: $day, ')
           ..write('endTime: $endTime, ')
           ..write('startTime: $startTime')
           ..write(')'))
@@ -1449,7 +1523,10 @@ class $EventHostsTable extends EventHosts
   @override
   late final GeneratedColumn<int> eventId = GeneratedColumn<int>(
       'event_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES events (id) ON DELETE CASCADE'));
   @override
   List<GeneratedColumn> get $columns => [id, memberId, eventId];
   @override
@@ -1482,6 +1559,10 @@ class $EventHostsTable extends EventHosts
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+        {memberId, eventId},
+      ];
   @override
   EventHost map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -1680,6 +1761,13 @@ abstract class _$Database extends GeneratedDatabase {
           ),
           WritePropagation(
             on: TableUpdateQuery.onTableName('timetable_members',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('event_hosts', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('events',
                 limitUpdateKind: UpdateKind.delete),
             result: [
               TableUpdate('event_hosts', kind: UpdateKind.delete),
@@ -2337,15 +2425,19 @@ typedef $$EventsTableCreateCompanionBuilder = EventsCompanion Function({
   Value<int> id,
   required int timetableId,
   required String title,
-  required PgDateTime endTime,
-  required PgDateTime startTime,
+  Value<String?> description,
+  required int day,
+  required DateTime endTime,
+  required DateTime startTime,
 });
 typedef $$EventsTableUpdateCompanionBuilder = EventsCompanion Function({
   Value<int> id,
   Value<int> timetableId,
   Value<String> title,
-  Value<PgDateTime> endTime,
-  Value<PgDateTime> startTime,
+  Value<String?> description,
+  Value<int> day,
+  Value<DateTime> endTime,
+  Value<DateTime> startTime,
 });
 
 final class $$EventsTableReferences
@@ -2365,6 +2457,20 @@ final class $$EventsTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
   }
+
+  static MultiTypedResultKey<$EventHostsTable, List<EventHost>>
+      _eventHostEventTable(_$Database db) => MultiTypedResultKey.fromTable(
+          db.eventHosts,
+          aliasName: $_aliasNameGenerator(db.events.id, db.eventHosts.eventId));
+
+  $$EventHostsTableProcessedTableManager get eventHostEvent {
+    final manager = $$EventHostsTableTableManager($_db, $_db.eventHosts)
+        .filter((f) => f.eventId.id($_item.id));
+
+    final cache = $_typedResult.readTableOrNull(_eventHostEventTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$EventsTableFilterComposer extends Composer<_$Database, $EventsTable> {
@@ -2381,10 +2487,16 @@ class $$EventsTableFilterComposer extends Composer<_$Database, $EventsTable> {
   ColumnFilters<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<PgDateTime> get endTime => $composableBuilder(
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get day => $composableBuilder(
+      column: $table.day, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get endTime => $composableBuilder(
       column: $table.endTime, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<PgDateTime> get startTime => $composableBuilder(
+  ColumnFilters<DateTime> get startTime => $composableBuilder(
       column: $table.startTime, builder: (column) => ColumnFilters(column));
 
   $$TimetablesTableFilterComposer get timetableId {
@@ -2406,6 +2518,27 @@ class $$EventsTableFilterComposer extends Composer<_$Database, $EventsTable> {
             ));
     return composer;
   }
+
+  Expression<bool> eventHostEvent(
+      Expression<bool> Function($$EventHostsTableFilterComposer f) f) {
+    final $$EventHostsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.eventHosts,
+        getReferencedColumn: (t) => t.eventId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$EventHostsTableFilterComposer(
+              $db: $db,
+              $table: $db.eventHosts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$EventsTableOrderingComposer extends Composer<_$Database, $EventsTable> {
@@ -2422,10 +2555,16 @@ class $$EventsTableOrderingComposer extends Composer<_$Database, $EventsTable> {
   ColumnOrderings<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<PgDateTime> get endTime => $composableBuilder(
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get day => $composableBuilder(
+      column: $table.day, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get endTime => $composableBuilder(
       column: $table.endTime, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<PgDateTime> get startTime => $composableBuilder(
+  ColumnOrderings<DateTime> get startTime => $composableBuilder(
       column: $table.startTime, builder: (column) => ColumnOrderings(column));
 
   $$TimetablesTableOrderingComposer get timetableId {
@@ -2464,10 +2603,16 @@ class $$EventsTableAnnotationComposer
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
 
-  GeneratedColumn<PgDateTime> get endTime =>
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<int> get day =>
+      $composableBuilder(column: $table.day, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endTime =>
       $composableBuilder(column: $table.endTime, builder: (column) => column);
 
-  GeneratedColumn<PgDateTime> get startTime =>
+  GeneratedColumn<DateTime> get startTime =>
       $composableBuilder(column: $table.startTime, builder: (column) => column);
 
   $$TimetablesTableAnnotationComposer get timetableId {
@@ -2489,6 +2634,27 @@ class $$EventsTableAnnotationComposer
             ));
     return composer;
   }
+
+  Expression<T> eventHostEvent<T extends Object>(
+      Expression<T> Function($$EventHostsTableAnnotationComposer a) f) {
+    final $$EventHostsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.eventHosts,
+        getReferencedColumn: (t) => t.eventId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$EventHostsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.eventHosts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$EventsTableTableManager extends RootTableManager<
@@ -2502,7 +2668,7 @@ class $$EventsTableTableManager extends RootTableManager<
     $$EventsTableUpdateCompanionBuilder,
     (Event, $$EventsTableReferences),
     Event,
-    PrefetchHooks Function({bool timetableId})> {
+    PrefetchHooks Function({bool timetableId, bool eventHostEvent})> {
   $$EventsTableTableManager(_$Database db, $EventsTable table)
       : super(TableManagerState(
           db: db,
@@ -2517,13 +2683,17 @@ class $$EventsTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             Value<int> timetableId = const Value.absent(),
             Value<String> title = const Value.absent(),
-            Value<PgDateTime> endTime = const Value.absent(),
-            Value<PgDateTime> startTime = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<int> day = const Value.absent(),
+            Value<DateTime> endTime = const Value.absent(),
+            Value<DateTime> startTime = const Value.absent(),
           }) =>
               EventsCompanion(
             id: id,
             timetableId: timetableId,
             title: title,
+            description: description,
+            day: day,
             endTime: endTime,
             startTime: startTime,
           ),
@@ -2531,13 +2701,17 @@ class $$EventsTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             required int timetableId,
             required String title,
-            required PgDateTime endTime,
-            required PgDateTime startTime,
+            Value<String?> description = const Value.absent(),
+            required int day,
+            required DateTime endTime,
+            required DateTime startTime,
           }) =>
               EventsCompanion.insert(
             id: id,
             timetableId: timetableId,
             title: title,
+            description: description,
+            day: day,
             endTime: endTime,
             startTime: startTime,
           ),
@@ -2545,10 +2719,11 @@ class $$EventsTableTableManager extends RootTableManager<
               .map((e) =>
                   (e.readTable(table), $$EventsTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({timetableId = false}) {
+          prefetchHooksCallback: (
+              {timetableId = false, eventHostEvent = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [],
+              explicitlyWatchedTables: [if (eventHostEvent) db.eventHosts],
               addJoins: <
                   T extends TableManagerState<
                       dynamic,
@@ -2576,7 +2751,20 @@ class $$EventsTableTableManager extends RootTableManager<
                 return state;
               },
               getPrefetchedDataCallback: (items) async {
-                return [];
+                return [
+                  if (eventHostEvent)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable:
+                            $$EventsTableReferences._eventHostEventTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$EventsTableReferences(db, table, p0)
+                                .eventHostEvent,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.eventId == item.id),
+                        typedResults: items)
+                ];
               },
             );
           },
@@ -2594,7 +2782,7 @@ typedef $$EventsTableProcessedTableManager = ProcessedTableManager<
     $$EventsTableUpdateCompanionBuilder,
     (Event, $$EventsTableReferences),
     Event,
-    PrefetchHooks Function({bool timetableId})>;
+    PrefetchHooks Function({bool timetableId, bool eventHostEvent})>;
 typedef $$TimetableMembersTableCreateCompanionBuilder
     = TimetableMembersCompanion Function({
   Value<int> id,
@@ -3030,6 +3218,19 @@ final class $$EventHostsTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
   }
+
+  static $EventsTable _eventIdTable(_$Database db) => db.events
+      .createAlias($_aliasNameGenerator(db.eventHosts.eventId, db.events.id));
+
+  $$EventsTableProcessedTableManager? get eventId {
+    if ($_item.eventId == null) return null;
+    final manager = $$EventsTableTableManager($_db, $_db.events)
+        .filter((f) => f.id($_item.eventId!));
+    final item = $_typedResult.readTableOrNull(_eventIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
 }
 
 class $$EventHostsTableFilterComposer
@@ -3044,9 +3245,6 @@ class $$EventHostsTableFilterComposer
   ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get eventId => $composableBuilder(
-      column: $table.eventId, builder: (column) => ColumnFilters(column));
-
   $$TimetableMembersTableFilterComposer get memberId {
     final $$TimetableMembersTableFilterComposer composer = $composerBuilder(
         composer: this,
@@ -3059,6 +3257,26 @@ class $$EventHostsTableFilterComposer
             $$TimetableMembersTableFilterComposer(
               $db: $db,
               $table: $db.timetableMembers,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$EventsTableFilterComposer get eventId {
+    final $$EventsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.eventId,
+        referencedTable: $db.events,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$EventsTableFilterComposer(
+              $db: $db,
+              $table: $db.events,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -3080,9 +3298,6 @@ class $$EventHostsTableOrderingComposer
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get eventId => $composableBuilder(
-      column: $table.eventId, builder: (column) => ColumnOrderings(column));
-
   $$TimetableMembersTableOrderingComposer get memberId {
     final $$TimetableMembersTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -3095,6 +3310,26 @@ class $$EventHostsTableOrderingComposer
             $$TimetableMembersTableOrderingComposer(
               $db: $db,
               $table: $db.timetableMembers,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$EventsTableOrderingComposer get eventId {
+    final $$EventsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.eventId,
+        referencedTable: $db.events,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$EventsTableOrderingComposer(
+              $db: $db,
+              $table: $db.events,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -3116,9 +3351,6 @@ class $$EventHostsTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<int> get eventId =>
-      $composableBuilder(column: $table.eventId, builder: (column) => column);
-
   $$TimetableMembersTableAnnotationComposer get memberId {
     final $$TimetableMembersTableAnnotationComposer composer = $composerBuilder(
         composer: this,
@@ -3131,6 +3363,26 @@ class $$EventHostsTableAnnotationComposer
             $$TimetableMembersTableAnnotationComposer(
               $db: $db,
               $table: $db.timetableMembers,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$EventsTableAnnotationComposer get eventId {
+    final $$EventsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.eventId,
+        referencedTable: $db.events,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$EventsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.events,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -3151,7 +3403,7 @@ class $$EventHostsTableTableManager extends RootTableManager<
     $$EventHostsTableUpdateCompanionBuilder,
     (EventHost, $$EventHostsTableReferences),
     EventHost,
-    PrefetchHooks Function({bool memberId})> {
+    PrefetchHooks Function({bool memberId, bool eventId})> {
   $$EventHostsTableTableManager(_$Database db, $EventHostsTable table)
       : super(TableManagerState(
           db: db,
@@ -3188,7 +3440,7 @@ class $$EventHostsTableTableManager extends RootTableManager<
                     $$EventHostsTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: ({memberId = false}) {
+          prefetchHooksCallback: ({memberId = false, eventId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -3215,6 +3467,16 @@ class $$EventHostsTableTableManager extends RootTableManager<
                         $$EventHostsTableReferences._memberIdTable(db).id,
                   ) as T;
                 }
+                if (eventId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.eventId,
+                    referencedTable:
+                        $$EventHostsTableReferences._eventIdTable(db),
+                    referencedColumn:
+                        $$EventHostsTableReferences._eventIdTable(db).id,
+                  ) as T;
+                }
 
                 return state;
               },
@@ -3237,7 +3499,7 @@ typedef $$EventHostsTableProcessedTableManager = ProcessedTableManager<
     $$EventHostsTableUpdateCompanionBuilder,
     (EventHost, $$EventHostsTableReferences),
     EventHost,
-    PrefetchHooks Function({bool memberId})>;
+    PrefetchHooks Function({bool memberId, bool eventId})>;
 
 class $DatabaseManager {
   final _$Database _db;
