@@ -69,7 +69,7 @@ class TimetablesControllerImpl implements TimetablesController {
 
     try {
       timetable = await database.createTimetable(
-        userId: user.id,
+        user: user,
         timetable: TimetablesCompanion.insert(
           title: title,
           description: Value(description),

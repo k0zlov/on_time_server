@@ -28,6 +28,7 @@ import 'package:on_time_server/sockets/timetables_socket.dart';
 import 'package:on_time_server/utils/jwt_client.dart';
 import 'package:postgres/postgres.dart';
 import 'package:shelf/shelf.dart';
+import 'package:shelf_cors_headers/shelf_cors_headers.dart';
 
 part 'controllers.dart';
 
@@ -72,9 +73,10 @@ ChatServer _server() {
       getIt(instanceName: 'timetables-route'),
     ],
     middlewares: <Middleware>[
+      corsHeaders(),
+      getIt(instanceName: 'headers-middleware'),
       logRequests(),
       errorMiddleware(),
-      getIt(instanceName: 'headers-middleware'),
     ],
     config: ServerConfig(
       ip: ip,

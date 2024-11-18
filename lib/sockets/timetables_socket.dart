@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:on_time_server/database/database.dart';
 import 'package:on_time_server/database/extensions/timetable_extension.dart';
+import 'package:on_time_server/models/member_model.dart';
 import 'package:on_time_server/models/timetable_model.dart';
 import 'package:on_time_server/models/timetable_socket_model.dart';
 import 'package:on_time_server/sockets/server_socket.dart';
@@ -68,8 +69,8 @@ class TimetablesSocketImpl extends TimetablesSocket {
 
     if (model == null) return;
 
-    for (final TimetableMember m in model.members) {
-      final WebSocketChannel? conn = sockets[m.userId];
+    for (final MemberModel m in model.members) {
+      final WebSocketChannel? conn = sockets[m.member.userId];
       if (conn == null) continue;
 
       final TimetableSocketModel response = TimetableSocketModel(

@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:on_time_server/database/database.dart';
 import 'package:on_time_server/database/extensions/event_extension.dart';
 import 'package:on_time_server/database/extensions/member_extension.dart';
+import 'package:on_time_server/models/member_model.dart';
 import 'package:on_time_server/models/timetable_model.dart';
 import 'package:on_time_server/tables/timetable_members.dart';
 
@@ -21,7 +22,7 @@ extension TimetableExtension on Database {
       events: await getAllEvents(
         (tbl) => tbl.timetableId.equals(timetable.id),
       ),
-      members: await getAllTimetableMembers(
+      members: await getAllMemberModels(
         (tbl) => tbl.timetableId.equals(timetable.id),
       ),
     );
@@ -30,7 +31,7 @@ extension TimetableExtension on Database {
   }
 
   Future<TimetableModel> createTimetable({
-    required int userId,
+    required User user,
     required TimetablesCompanion timetable,
   }) async {
     return transaction(() async {
@@ -38,7 +39,7 @@ extension TimetableExtension on Database {
 
       final TimetableMember member = await timetableMembers.insertReturning(
         TimetableMembersCompanion.insert(
-          userId: userId,
+          userId: user.id,
           timetableId: table.id,
           role: const Value(TimetableMemberRoles.owner),
         ),
@@ -47,7 +48,9 @@ extension TimetableExtension on Database {
       return TimetableModel(
         events: [],
         timetable: table,
-        members: [member],
+        members: [
+          MemberModel(name: user.name, lastName: user.lastName, member: member),
+        ],
       );
     });
   }
@@ -74,7 +77,7 @@ extension TimetableExtension on Database {
           events: await getAllEvents(
             (tbl) => tbl.timetableId.equals(t.id),
           ),
-          members: await getAllTimetableMembers(
+          members: await getAllMemberModels(
             (tbl) => tbl.timetableId.equals(t.id),
           ),
         ),
