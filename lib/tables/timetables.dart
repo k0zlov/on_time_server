@@ -9,9 +9,9 @@ class Timetables extends Table {
 
   TextColumn get invitationCode => text().unique()();
 
-  DateTimeColumn get startTime => dateTime()();
+  IntColumn get startTime => integer()();
 
-  DateTimeColumn get endTime => dateTime()();
+  IntColumn get endTime => integer()();
 
   @override
   Set<Column<Object>>? get primaryKey => {id};

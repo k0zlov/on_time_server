@@ -17,9 +17,9 @@ class Events extends Table {
 
   IntColumn get day => integer()();
 
-  DateTimeColumn get endTime => dateTime()();
+  IntColumn get startTime => integer()();
 
-  DateTimeColumn get startTime => dateTime()();
+  IntColumn get endTime => integer()();
 
   @override
   Set<Column<Object>>? get primaryKey => {id};

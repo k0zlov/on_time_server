@@ -10,7 +10,6 @@ import 'package:on_time_server/exceptions/api_exception.dart';
 import 'package:on_time_server/models/timetable_model.dart';
 import 'package:on_time_server/models/timetable_socket_model.dart';
 import 'package:on_time_server/sockets/timetables_socket.dart';
-import 'package:on_time_server/utils/date_time_extension.dart';
 import 'package:on_time_server/utils/request_validator.dart';
 import 'package:shelf/shelf.dart';
 import 'package:uuid/v4.dart';
@@ -47,12 +46,6 @@ class TimetablesControllerImpl implements TimetablesController {
       throw const ApiException.badRequest('Invalid end time.');
     }
 
-    final DateTime startTime =
-        DateTimeExtension.fromSecondsSinceMidnight(rawStartTime);
-
-    final DateTime endTime =
-        DateTimeExtension.fromSecondsSinceMidnight(rawEndTime);
-
     if (title.length < 3) {
       throw const ApiException.badRequest(
         'Timetable title should be at least 3 symbols length.',
@@ -74,8 +67,8 @@ class TimetablesControllerImpl implements TimetablesController {
           title: title,
           description: Value(description),
           invitationCode: const UuidV4().generate(),
-          startTime: startTime,
-          endTime: endTime,
+          startTime: rawStartTime,
+          endTime: rawEndTime,
         ),
       );
     } catch (e) {
@@ -187,16 +180,11 @@ class TimetablesControllerImpl implements TimetablesController {
     final newTimetable = timetable.copyWith(
       title: newTitle,
       description: Value(newDescription),
-      startTime: newStartTime == null
-          ? null
-          : DateTimeExtension.fromSecondsSinceMidnight(newStartTime),
-      endTime: newEndTime == null
-          ? null
-          : DateTimeExtension.fromSecondsSinceMidnight(newEndTime),
+      startTime: newStartTime,
+      endTime: newEndTime,
     );
 
-    if (newTimetable.endTime.toSecondsSinceMidnight() <=
-        newTimetable.startTime.toSecondsSinceMidnight()) {
+    if (newTimetable.endTime <= newTimetable.startTime) {
       throw const ApiException.badRequest(
         'Start time should be earlier than end time.',
       );
@@ -220,7 +208,7 @@ class TimetablesControllerImpl implements TimetablesController {
     }
     unawaited(socket.sendUpdate(timetableId: timetableId));
 
-    return Response.ok('Timetable updated successfully.');
+    return Response.ok(jsonEncode('Timetable updated successfully.'));
   }
 
   @override
@@ -261,7 +249,7 @@ class TimetablesControllerImpl implements TimetablesController {
       socket.sendUpdate(timetableId: timetableId, userToDelete: user.id),
     );
 
-    return Response.ok('Successfully left the timetable.');
+    return Response.ok(jsonEncode('Successfully left the timetable.'));
   }
 
   @override

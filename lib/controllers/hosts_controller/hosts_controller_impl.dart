@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:on_time_server/controllers/hosts_controller/hosts_controller.dart';
@@ -64,7 +65,7 @@ class HostsControllerImpl implements HostsController {
 
     unawaited(socket.sendUpdate(timetableId: foundEvent.timetableId));
 
-    return Response.ok('Successfully added new event host');
+    return Response.ok(jsonEncode('Successfully added new event host'));
   }
 
   @override
@@ -120,6 +121,6 @@ class HostsControllerImpl implements HostsController {
 
     unawaited(socket.sendUpdate(timetableId: foundEvent.timetableId));
 
-    return Response.ok('Successfully removed event host.');
+    return Response.ok(jsonEncode('Successfully removed event host.'));
   }
 }

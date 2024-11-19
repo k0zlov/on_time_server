@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 import 'package:on_time_server/database/database.dart';
 import 'package:on_time_server/database/extensions/event_host_extension.dart';
 import 'package:on_time_server/models/event_model.dart';
-import 'package:on_time_server/utils/date_time_extension.dart';
 
 extension EventExtension on Database {
   Future<Event?> getEvent(
@@ -46,8 +45,8 @@ extension EventExtension on Database {
         .get();
 
     for (final Event event in eventList) {
-      final int eventStart = event.startTime.toSecondsSinceMidnight();
-      final int eventEnd = event.endTime.toSecondsSinceMidnight();
+      final int eventStart = event.startTime;
+      final int eventEnd = event.endTime;
 
       if (startTime >= eventStart && startTime <= eventEnd) {
         return false;

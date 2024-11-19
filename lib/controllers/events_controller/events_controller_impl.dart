@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:on_time_server/controllers/events_controller/events_controller.dart';
@@ -7,7 +8,6 @@ import 'package:on_time_server/database/extensions/event_extension.dart';
 import 'package:on_time_server/database/extensions/member_extension.dart';
 import 'package:on_time_server/exceptions/api_exception.dart';
 import 'package:on_time_server/sockets/timetables_socket.dart';
-import 'package:on_time_server/utils/date_time_extension.dart';
 import 'package:on_time_server/utils/request_validator.dart';
 import 'package:shelf/shelf.dart';
 
@@ -104,8 +104,8 @@ class EventsControllerImpl implements EventsController {
             description: Value(description),
             title: title,
             day: day,
-            endTime: DateTimeExtension.fromSecondsSinceMidnight(endTime),
-            startTime: DateTimeExtension.fromSecondsSinceMidnight(startTime),
+            endTime: endTime,
+            startTime: startTime,
           ),
         );
 
@@ -142,7 +142,7 @@ class EventsControllerImpl implements EventsController {
 
     unawaited(socket.sendUpdate(timetableId: timetableId));
 
-    return Response.ok('Successfully created an event.');
+    return Response.ok(jsonEncode('Successfully created an event.'));
   }
 
   @override
@@ -201,16 +201,11 @@ class EventsControllerImpl implements EventsController {
       title: title,
       description: Value(description ?? event.description),
       day: day,
-      startTime: startTime == null
-          ? null
-          : DateTimeExtension.fromSecondsSinceMidnight(startTime),
-      endTime: endTime == null
-          ? null
-          : DateTimeExtension.fromSecondsSinceMidnight(endTime),
+      startTime: startTime,
+      endTime: endTime,
     );
 
-    if (newEvent.endTime.toSecondsSinceMidnight() <=
-        newEvent.startTime.toSecondsSinceMidnight()) {
+    if (newEvent.endTime <= newEvent.startTime) {
       throw const ApiException.badRequest(
         'Start time should be earlier than end time.',
       );
@@ -228,7 +223,7 @@ class EventsControllerImpl implements EventsController {
 
     unawaited(socket.sendUpdate(timetableId: event.timetableId));
 
-    return Response.ok('Successfully updated event.');
+    return Response.ok(jsonEncode('Successfully updated event.'));
   }
 
   @override
@@ -272,6 +267,6 @@ class EventsControllerImpl implements EventsController {
 
     unawaited(socket.sendUpdate(timetableId: event.timetableId));
 
-    return Response.ok('Successfully deleted event.');
+    return Response.ok(jsonEncode('Successfully deleted event.'));
   }
 }

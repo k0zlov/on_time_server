@@ -523,15 +523,15 @@ class $TimetablesTable extends Timetables
   static const VerificationMeta _startTimeMeta =
       const VerificationMeta('startTime');
   @override
-  late final GeneratedColumn<DateTime> startTime = GeneratedColumn<DateTime>(
+  late final GeneratedColumn<int> startTime = GeneratedColumn<int>(
       'start_time', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _endTimeMeta =
       const VerificationMeta('endTime');
   @override
-  late final GeneratedColumn<DateTime> endTime = GeneratedColumn<DateTime>(
+  late final GeneratedColumn<int> endTime = GeneratedColumn<int>(
       'end_time', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      type: DriftSqlType.int, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
       [id, title, description, invitationCode, startTime, endTime];
@@ -598,9 +598,9 @@ class $TimetablesTable extends Timetables
       invitationCode: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}invitation_code'])!,
       startTime: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}start_time'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}start_time'])!,
       endTime: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}end_time'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}end_time'])!,
     );
   }
 
@@ -615,8 +615,8 @@ class Timetable extends DataClass implements Insertable<Timetable> {
   final String title;
   final String? description;
   final String invitationCode;
-  final DateTime startTime;
-  final DateTime endTime;
+  final int startTime;
+  final int endTime;
   const Timetable(
       {required this.id,
       required this.title,
@@ -633,8 +633,8 @@ class Timetable extends DataClass implements Insertable<Timetable> {
       map['description'] = Variable<String>(description);
     }
     map['invitation_code'] = Variable<String>(invitationCode);
-    map['start_time'] = Variable<DateTime>(startTime);
-    map['end_time'] = Variable<DateTime>(endTime);
+    map['start_time'] = Variable<int>(startTime);
+    map['end_time'] = Variable<int>(endTime);
     return map;
   }
 
@@ -659,8 +659,8 @@ class Timetable extends DataClass implements Insertable<Timetable> {
       title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String?>(json['description']),
       invitationCode: serializer.fromJson<String>(json['invitationCode']),
-      startTime: serializer.fromJson<DateTime>(json['startTime']),
-      endTime: serializer.fromJson<DateTime>(json['endTime']),
+      startTime: serializer.fromJson<int>(json['startTime']),
+      endTime: serializer.fromJson<int>(json['endTime']),
     );
   }
   @override
@@ -671,8 +671,8 @@ class Timetable extends DataClass implements Insertable<Timetable> {
       'title': serializer.toJson<String>(title),
       'description': serializer.toJson<String?>(description),
       'invitationCode': serializer.toJson<String>(invitationCode),
-      'startTime': serializer.toJson<DateTime>(startTime),
-      'endTime': serializer.toJson<DateTime>(endTime),
+      'startTime': serializer.toJson<int>(startTime),
+      'endTime': serializer.toJson<int>(endTime),
     };
   }
 
@@ -681,8 +681,8 @@ class Timetable extends DataClass implements Insertable<Timetable> {
           String? title,
           Value<String?> description = const Value.absent(),
           String? invitationCode,
-          DateTime? startTime,
-          DateTime? endTime}) =>
+          int? startTime,
+          int? endTime}) =>
       Timetable(
         id: id ?? this.id,
         title: title ?? this.title,
@@ -738,8 +738,8 @@ class TimetablesCompanion extends UpdateCompanion<Timetable> {
   final Value<String> title;
   final Value<String?> description;
   final Value<String> invitationCode;
-  final Value<DateTime> startTime;
-  final Value<DateTime> endTime;
+  final Value<int> startTime;
+  final Value<int> endTime;
   const TimetablesCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
@@ -753,8 +753,8 @@ class TimetablesCompanion extends UpdateCompanion<Timetable> {
     required String title,
     this.description = const Value.absent(),
     required String invitationCode,
-    required DateTime startTime,
-    required DateTime endTime,
+    required int startTime,
+    required int endTime,
   })  : title = Value(title),
         invitationCode = Value(invitationCode),
         startTime = Value(startTime),
@@ -764,8 +764,8 @@ class TimetablesCompanion extends UpdateCompanion<Timetable> {
     Expression<String>? title,
     Expression<String>? description,
     Expression<String>? invitationCode,
-    Expression<DateTime>? startTime,
-    Expression<DateTime>? endTime,
+    Expression<int>? startTime,
+    Expression<int>? endTime,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -782,8 +782,8 @@ class TimetablesCompanion extends UpdateCompanion<Timetable> {
       Value<String>? title,
       Value<String?>? description,
       Value<String>? invitationCode,
-      Value<DateTime>? startTime,
-      Value<DateTime>? endTime}) {
+      Value<int>? startTime,
+      Value<int>? endTime}) {
     return TimetablesCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
@@ -810,10 +810,10 @@ class TimetablesCompanion extends UpdateCompanion<Timetable> {
       map['invitation_code'] = Variable<String>(invitationCode.value);
     }
     if (startTime.present) {
-      map['start_time'] = Variable<DateTime>(startTime.value);
+      map['start_time'] = Variable<int>(startTime.value);
     }
     if (endTime.present) {
-      map['end_time'] = Variable<DateTime>(endTime.value);
+      map['end_time'] = Variable<int>(endTime.value);
     }
     return map;
   }
@@ -871,21 +871,21 @@ class $EventsTable extends Events with TableInfo<$EventsTable, Event> {
   late final GeneratedColumn<int> day = GeneratedColumn<int>(
       'day', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _endTimeMeta =
-      const VerificationMeta('endTime');
-  @override
-  late final GeneratedColumn<DateTime> endTime = GeneratedColumn<DateTime>(
-      'end_time', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   static const VerificationMeta _startTimeMeta =
       const VerificationMeta('startTime');
   @override
-  late final GeneratedColumn<DateTime> startTime = GeneratedColumn<DateTime>(
+  late final GeneratedColumn<int> startTime = GeneratedColumn<int>(
       'start_time', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _endTimeMeta =
+      const VerificationMeta('endTime');
+  @override
+  late final GeneratedColumn<int> endTime = GeneratedColumn<int>(
+      'end_time', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, timetableId, title, description, day, endTime, startTime];
+      [id, timetableId, title, description, day, startTime, endTime];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -925,17 +925,17 @@ class $EventsTable extends Events with TableInfo<$EventsTable, Event> {
     } else if (isInserting) {
       context.missing(_dayMeta);
     }
-    if (data.containsKey('end_time')) {
-      context.handle(_endTimeMeta,
-          endTime.isAcceptableOrUnknown(data['end_time']!, _endTimeMeta));
-    } else if (isInserting) {
-      context.missing(_endTimeMeta);
-    }
     if (data.containsKey('start_time')) {
       context.handle(_startTimeMeta,
           startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta));
     } else if (isInserting) {
       context.missing(_startTimeMeta);
+    }
+    if (data.containsKey('end_time')) {
+      context.handle(_endTimeMeta,
+          endTime.isAcceptableOrUnknown(data['end_time']!, _endTimeMeta));
+    } else if (isInserting) {
+      context.missing(_endTimeMeta);
     }
     return context;
   }
@@ -956,10 +956,10 @@ class $EventsTable extends Events with TableInfo<$EventsTable, Event> {
           .read(DriftSqlType.string, data['${effectivePrefix}description']),
       day: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}day'])!,
-      endTime: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}end_time'])!,
       startTime: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}start_time'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}start_time'])!,
+      endTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}end_time'])!,
     );
   }
 
@@ -975,16 +975,16 @@ class Event extends DataClass implements Insertable<Event> {
   final String title;
   final String? description;
   final int day;
-  final DateTime endTime;
-  final DateTime startTime;
+  final int startTime;
+  final int endTime;
   const Event(
       {required this.id,
       required this.timetableId,
       required this.title,
       this.description,
       required this.day,
-      required this.endTime,
-      required this.startTime});
+      required this.startTime,
+      required this.endTime});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -995,8 +995,8 @@ class Event extends DataClass implements Insertable<Event> {
       map['description'] = Variable<String>(description);
     }
     map['day'] = Variable<int>(day);
-    map['end_time'] = Variable<DateTime>(endTime);
-    map['start_time'] = Variable<DateTime>(startTime);
+    map['start_time'] = Variable<int>(startTime);
+    map['end_time'] = Variable<int>(endTime);
     return map;
   }
 
@@ -1009,8 +1009,8 @@ class Event extends DataClass implements Insertable<Event> {
           ? const Value.absent()
           : Value(description),
       day: Value(day),
-      endTime: Value(endTime),
       startTime: Value(startTime),
+      endTime: Value(endTime),
     );
   }
 
@@ -1023,8 +1023,8 @@ class Event extends DataClass implements Insertable<Event> {
       title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String?>(json['description']),
       day: serializer.fromJson<int>(json['day']),
-      endTime: serializer.fromJson<DateTime>(json['endTime']),
-      startTime: serializer.fromJson<DateTime>(json['startTime']),
+      startTime: serializer.fromJson<int>(json['startTime']),
+      endTime: serializer.fromJson<int>(json['endTime']),
     );
   }
   @override
@@ -1036,8 +1036,8 @@ class Event extends DataClass implements Insertable<Event> {
       'title': serializer.toJson<String>(title),
       'description': serializer.toJson<String?>(description),
       'day': serializer.toJson<int>(day),
-      'endTime': serializer.toJson<DateTime>(endTime),
-      'startTime': serializer.toJson<DateTime>(startTime),
+      'startTime': serializer.toJson<int>(startTime),
+      'endTime': serializer.toJson<int>(endTime),
     };
   }
 
@@ -1047,16 +1047,16 @@ class Event extends DataClass implements Insertable<Event> {
           String? title,
           Value<String?> description = const Value.absent(),
           int? day,
-          DateTime? endTime,
-          DateTime? startTime}) =>
+          int? startTime,
+          int? endTime}) =>
       Event(
         id: id ?? this.id,
         timetableId: timetableId ?? this.timetableId,
         title: title ?? this.title,
         description: description.present ? description.value : this.description,
         day: day ?? this.day,
-        endTime: endTime ?? this.endTime,
         startTime: startTime ?? this.startTime,
+        endTime: endTime ?? this.endTime,
       );
   Event copyWithCompanion(EventsCompanion data) {
     return Event(
@@ -1067,8 +1067,8 @@ class Event extends DataClass implements Insertable<Event> {
       description:
           data.description.present ? data.description.value : this.description,
       day: data.day.present ? data.day.value : this.day,
-      endTime: data.endTime.present ? data.endTime.value : this.endTime,
       startTime: data.startTime.present ? data.startTime.value : this.startTime,
+      endTime: data.endTime.present ? data.endTime.value : this.endTime,
     );
   }
 
@@ -1080,15 +1080,15 @@ class Event extends DataClass implements Insertable<Event> {
           ..write('title: $title, ')
           ..write('description: $description, ')
           ..write('day: $day, ')
-          ..write('endTime: $endTime, ')
-          ..write('startTime: $startTime')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      Object.hash(id, timetableId, title, description, day, endTime, startTime);
+      Object.hash(id, timetableId, title, description, day, startTime, endTime);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1098,8 +1098,8 @@ class Event extends DataClass implements Insertable<Event> {
           other.title == this.title &&
           other.description == this.description &&
           other.day == this.day &&
-          other.endTime == this.endTime &&
-          other.startTime == this.startTime);
+          other.startTime == this.startTime &&
+          other.endTime == this.endTime);
 }
 
 class EventsCompanion extends UpdateCompanion<Event> {
@@ -1108,16 +1108,16 @@ class EventsCompanion extends UpdateCompanion<Event> {
   final Value<String> title;
   final Value<String?> description;
   final Value<int> day;
-  final Value<DateTime> endTime;
-  final Value<DateTime> startTime;
+  final Value<int> startTime;
+  final Value<int> endTime;
   const EventsCompanion({
     this.id = const Value.absent(),
     this.timetableId = const Value.absent(),
     this.title = const Value.absent(),
     this.description = const Value.absent(),
     this.day = const Value.absent(),
-    this.endTime = const Value.absent(),
     this.startTime = const Value.absent(),
+    this.endTime = const Value.absent(),
   });
   EventsCompanion.insert({
     this.id = const Value.absent(),
@@ -1125,21 +1125,21 @@ class EventsCompanion extends UpdateCompanion<Event> {
     required String title,
     this.description = const Value.absent(),
     required int day,
-    required DateTime endTime,
-    required DateTime startTime,
+    required int startTime,
+    required int endTime,
   })  : timetableId = Value(timetableId),
         title = Value(title),
         day = Value(day),
-        endTime = Value(endTime),
-        startTime = Value(startTime);
+        startTime = Value(startTime),
+        endTime = Value(endTime);
   static Insertable<Event> custom({
     Expression<int>? id,
     Expression<int>? timetableId,
     Expression<String>? title,
     Expression<String>? description,
     Expression<int>? day,
-    Expression<DateTime>? endTime,
-    Expression<DateTime>? startTime,
+    Expression<int>? startTime,
+    Expression<int>? endTime,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1147,8 +1147,8 @@ class EventsCompanion extends UpdateCompanion<Event> {
       if (title != null) 'title': title,
       if (description != null) 'description': description,
       if (day != null) 'day': day,
-      if (endTime != null) 'end_time': endTime,
       if (startTime != null) 'start_time': startTime,
+      if (endTime != null) 'end_time': endTime,
     });
   }
 
@@ -1158,16 +1158,16 @@ class EventsCompanion extends UpdateCompanion<Event> {
       Value<String>? title,
       Value<String?>? description,
       Value<int>? day,
-      Value<DateTime>? endTime,
-      Value<DateTime>? startTime}) {
+      Value<int>? startTime,
+      Value<int>? endTime}) {
     return EventsCompanion(
       id: id ?? this.id,
       timetableId: timetableId ?? this.timetableId,
       title: title ?? this.title,
       description: description ?? this.description,
       day: day ?? this.day,
-      endTime: endTime ?? this.endTime,
       startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
     );
   }
 
@@ -1189,11 +1189,11 @@ class EventsCompanion extends UpdateCompanion<Event> {
     if (day.present) {
       map['day'] = Variable<int>(day.value);
     }
-    if (endTime.present) {
-      map['end_time'] = Variable<DateTime>(endTime.value);
-    }
     if (startTime.present) {
-      map['start_time'] = Variable<DateTime>(startTime.value);
+      map['start_time'] = Variable<int>(startTime.value);
+    }
+    if (endTime.present) {
+      map['end_time'] = Variable<int>(endTime.value);
     }
     return map;
   }
@@ -1206,8 +1206,8 @@ class EventsCompanion extends UpdateCompanion<Event> {
           ..write('title: $title, ')
           ..write('description: $description, ')
           ..write('day: $day, ')
-          ..write('endTime: $endTime, ')
-          ..write('startTime: $startTime')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime')
           ..write(')'))
         .toString();
   }
@@ -2089,16 +2089,16 @@ typedef $$TimetablesTableCreateCompanionBuilder = TimetablesCompanion Function({
   required String title,
   Value<String?> description,
   required String invitationCode,
-  required DateTime startTime,
-  required DateTime endTime,
+  required int startTime,
+  required int endTime,
 });
 typedef $$TimetablesTableUpdateCompanionBuilder = TimetablesCompanion Function({
   Value<int> id,
   Value<String> title,
   Value<String?> description,
   Value<String> invitationCode,
-  Value<DateTime> startTime,
-  Value<DateTime> endTime,
+  Value<int> startTime,
+  Value<int> endTime,
 });
 
 final class $$TimetablesTableReferences
@@ -2159,10 +2159,10 @@ class $$TimetablesTableFilterComposer
       column: $table.invitationCode,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get startTime => $composableBuilder(
+  ColumnFilters<int> get startTime => $composableBuilder(
       column: $table.startTime, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get endTime => $composableBuilder(
+  ColumnFilters<int> get endTime => $composableBuilder(
       column: $table.endTime, builder: (column) => ColumnFilters(column));
 
   Expression<bool> eventTimetables(
@@ -2230,10 +2230,10 @@ class $$TimetablesTableOrderingComposer
       column: $table.invitationCode,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get startTime => $composableBuilder(
+  ColumnOrderings<int> get startTime => $composableBuilder(
       column: $table.startTime, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get endTime => $composableBuilder(
+  ColumnOrderings<int> get endTime => $composableBuilder(
       column: $table.endTime, builder: (column) => ColumnOrderings(column));
 }
 
@@ -2258,10 +2258,10 @@ class $$TimetablesTableAnnotationComposer
   GeneratedColumn<String> get invitationCode => $composableBuilder(
       column: $table.invitationCode, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get startTime =>
+  GeneratedColumn<int> get startTime =>
       $composableBuilder(column: $table.startTime, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get endTime =>
+  GeneratedColumn<int> get endTime =>
       $composableBuilder(column: $table.endTime, builder: (column) => column);
 
   Expression<T> eventTimetables<T extends Object>(
@@ -2334,8 +2334,8 @@ class $$TimetablesTableTableManager extends RootTableManager<
             Value<String> title = const Value.absent(),
             Value<String?> description = const Value.absent(),
             Value<String> invitationCode = const Value.absent(),
-            Value<DateTime> startTime = const Value.absent(),
-            Value<DateTime> endTime = const Value.absent(),
+            Value<int> startTime = const Value.absent(),
+            Value<int> endTime = const Value.absent(),
           }) =>
               TimetablesCompanion(
             id: id,
@@ -2350,8 +2350,8 @@ class $$TimetablesTableTableManager extends RootTableManager<
             required String title,
             Value<String?> description = const Value.absent(),
             required String invitationCode,
-            required DateTime startTime,
-            required DateTime endTime,
+            required int startTime,
+            required int endTime,
           }) =>
               TimetablesCompanion.insert(
             id: id,
@@ -2427,8 +2427,8 @@ typedef $$EventsTableCreateCompanionBuilder = EventsCompanion Function({
   required String title,
   Value<String?> description,
   required int day,
-  required DateTime endTime,
-  required DateTime startTime,
+  required int startTime,
+  required int endTime,
 });
 typedef $$EventsTableUpdateCompanionBuilder = EventsCompanion Function({
   Value<int> id,
@@ -2436,8 +2436,8 @@ typedef $$EventsTableUpdateCompanionBuilder = EventsCompanion Function({
   Value<String> title,
   Value<String?> description,
   Value<int> day,
-  Value<DateTime> endTime,
-  Value<DateTime> startTime,
+  Value<int> startTime,
+  Value<int> endTime,
 });
 
 final class $$EventsTableReferences
@@ -2493,11 +2493,11 @@ class $$EventsTableFilterComposer extends Composer<_$Database, $EventsTable> {
   ColumnFilters<int> get day => $composableBuilder(
       column: $table.day, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get endTime => $composableBuilder(
-      column: $table.endTime, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get startTime => $composableBuilder(
+  ColumnFilters<int> get startTime => $composableBuilder(
       column: $table.startTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get endTime => $composableBuilder(
+      column: $table.endTime, builder: (column) => ColumnFilters(column));
 
   $$TimetablesTableFilterComposer get timetableId {
     final $$TimetablesTableFilterComposer composer = $composerBuilder(
@@ -2561,11 +2561,11 @@ class $$EventsTableOrderingComposer extends Composer<_$Database, $EventsTable> {
   ColumnOrderings<int> get day => $composableBuilder(
       column: $table.day, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get endTime => $composableBuilder(
-      column: $table.endTime, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get startTime => $composableBuilder(
+  ColumnOrderings<int> get startTime => $composableBuilder(
       column: $table.startTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get endTime => $composableBuilder(
+      column: $table.endTime, builder: (column) => ColumnOrderings(column));
 
   $$TimetablesTableOrderingComposer get timetableId {
     final $$TimetablesTableOrderingComposer composer = $composerBuilder(
@@ -2609,11 +2609,11 @@ class $$EventsTableAnnotationComposer
   GeneratedColumn<int> get day =>
       $composableBuilder(column: $table.day, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get endTime =>
-      $composableBuilder(column: $table.endTime, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get startTime =>
+  GeneratedColumn<int> get startTime =>
       $composableBuilder(column: $table.startTime, builder: (column) => column);
+
+  GeneratedColumn<int> get endTime =>
+      $composableBuilder(column: $table.endTime, builder: (column) => column);
 
   $$TimetablesTableAnnotationComposer get timetableId {
     final $$TimetablesTableAnnotationComposer composer = $composerBuilder(
@@ -2685,8 +2685,8 @@ class $$EventsTableTableManager extends RootTableManager<
             Value<String> title = const Value.absent(),
             Value<String?> description = const Value.absent(),
             Value<int> day = const Value.absent(),
-            Value<DateTime> endTime = const Value.absent(),
-            Value<DateTime> startTime = const Value.absent(),
+            Value<int> startTime = const Value.absent(),
+            Value<int> endTime = const Value.absent(),
           }) =>
               EventsCompanion(
             id: id,
@@ -2694,8 +2694,8 @@ class $$EventsTableTableManager extends RootTableManager<
             title: title,
             description: description,
             day: day,
-            endTime: endTime,
             startTime: startTime,
+            endTime: endTime,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -2703,8 +2703,8 @@ class $$EventsTableTableManager extends RootTableManager<
             required String title,
             Value<String?> description = const Value.absent(),
             required int day,
-            required DateTime endTime,
-            required DateTime startTime,
+            required int startTime,
+            required int endTime,
           }) =>
               EventsCompanion.insert(
             id: id,
@@ -2712,8 +2712,8 @@ class $$EventsTableTableManager extends RootTableManager<
             title: title,
             description: description,
             day: day,
-            endTime: endTime,
             startTime: startTime,
+            endTime: endTime,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) =>

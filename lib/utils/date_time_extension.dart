@@ -3,11 +3,11 @@ extension DateTimeExtension on DateTime {
     final int hours = secondsSinceMidnight ~/ 3600;
     final int minutes = (secondsSinceMidnight % 3600) ~/ 60;
     final int seconds = secondsSinceMidnight % 60;
-    final DateTime today = DateTime.now();
-    return DateTime(
-      today.year,
-      today.month,
-      today.day,
+    final DateTime todayUtc = DateTime.now().toUtc();
+    return DateTime.utc(
+      todayUtc.year,
+      todayUtc.month,
+      todayUtc.day,
       hours,
       minutes,
       seconds,
@@ -15,6 +15,7 @@ extension DateTimeExtension on DateTime {
   }
 
   int toSecondsSinceMidnight() {
-    return hour * 3600 + minute * 60 + second;
+    final utcTime = toUtc();
+    return utcTime.hour * 3600 + utcTime.minute * 60 + utcTime.second;
   }
 }
