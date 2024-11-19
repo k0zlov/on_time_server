@@ -7,14 +7,14 @@ void _controllers() {
         database: getIt(),
         tokenService: getIt(),
         mailService: getIt(),
-        activatinRedirectUrl: 'https://github.com/',
+        activatinRedirectUrl: 'https://on_time.globeapp.dev/',
       ),
     )
     ..registerLazySingleton<TimetablesController>(
       () => TimetablesControllerImpl(
         database: getIt(),
         socket: getIt(),
-        websiteBaseUrl: 'https://github.com/',
+        websiteBaseUrl: 'https://on_time.globeapp.dev/',
       ),
     )
     ..registerLazySingleton<EventsController>(
