@@ -69,7 +69,7 @@ class AuthControllerImpl implements AuthController {
             lastName: lastName,
             password: password,
             email: email,
-            refreshToken: '',
+            refreshToken: const UuidV4().generate(),
             activationCode: activationCode,
           ),
         );
@@ -85,6 +85,8 @@ class AuthControllerImpl implements AuthController {
         await database.users.update().replace(newUser);
       });
     } catch (e) {
+      print(e);
+
       throw const ApiException.internalServerError(
         'Could not register user',
       );
