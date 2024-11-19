@@ -164,7 +164,7 @@ class AuthControllerImpl implements AuthController {
       return Response.ok(jsonEncode('User has already been logged out'));
     }
 
-    final User newUser = user.copyWith(refreshToken: '');
+    final User newUser = user.copyWith(refreshToken: const UuidV4().generate());
 
     final bool result = await database.users.update().replace(newUser);
 
