@@ -50,11 +50,22 @@ class TimetablesRoute extends ServerRoute {
 
     final Middleware updateMw = validatorMiddleware(bodyParams: updateParams);
 
+    const updateMemberParams = <ValidatorParameter<Object>>[
+      ValidatorParameter<int>(name: 'timetableId'),
+      ValidatorParameter<int>(name: 'memberId'),
+      ValidatorParameter<String>(name: 'role'),
+    ];
+
+    final Middleware updateMemberMw = validatorMiddleware(
+      bodyParams: updateMemberParams,
+    );
+
     return router
       ..get('/socket', socket.connect)
       ..get('/invitation/<code>', controller.invitation)
       ..putMw('/update', controller.update, [updateMw])
       ..postMw('/create', controller.create, [createMw])
+      ..postMw('/updateMember', controller.updateMember, [updateMemberMw])
       ..postMw('/leave', controller.leave, [deleteLeaveMw])
       ..deleteMw('/delete', controller.delete, [deleteLeaveMw]);
   }

@@ -10,4 +10,6 @@ abstract interface class TimetablesController {
   Future<Response> leave(Request request);
 
   Future<Response> invitation(Request request, String code);
+
+  Future<Response> updateMember(Request request);
 }

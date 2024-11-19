@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:on_time_server/controllers/timetables_controller/timetables_controller.dart';
 import 'package:on_time_server/database/database.dart';
@@ -10,6 +11,7 @@ import 'package:on_time_server/exceptions/api_exception.dart';
 import 'package:on_time_server/models/timetable_model.dart';
 import 'package:on_time_server/models/timetable_socket_model.dart';
 import 'package:on_time_server/sockets/timetables_socket.dart';
+import 'package:on_time_server/tables/timetable_members.dart';
 import 'package:on_time_server/utils/request_validator.dart';
 import 'package:shelf/shelf.dart';
 import 'package:uuid/v4.dart';
@@ -290,6 +292,75 @@ class TimetablesControllerImpl implements TimetablesController {
 
     unawaited(socket.sendUpdate(timetableId: timetable.id));
 
-    return Response.found(websiteBaseUrl);
+    return Response.ok(jsonEncode('Success'));
+  }
+
+  @override
+  Future<Response> updateMember(Request request) async {
+    final User user = request.context['user']! as User;
+
+    final Map<String, dynamic> body =
+        RequestValidator.getBodyFromContext(request);
+
+    final int timetableId = body['timetableId'] as int;
+    final int memberId = body['memberId'] as int;
+    final String newRole = body['role'] as String;
+
+    final TimetableMemberRoles? roleEnum =
+        TimetableMemberRoles.values.firstWhereOrNull(
+      (role) => role.name == newRole,
+    );
+
+    if (roleEnum == null) {
+      throw const ApiException.badRequest('Invalid role.');
+    }
+
+    final TimetableMember? requester = await database.getTimetableMember(
+      (tbl) => tbl.userId.equals(user.id) & tbl.timetableId.equals(timetableId),
+    );
+
+    if (requester == null || !requester.role.isOwner) {
+      throw const ApiException.forbidden(
+        'Only the owner can update member roles.',
+      );
+    }
+
+    if (roleEnum.isOwner) {
+      throw const ApiException.forbidden(
+        'You are not allowed to give owner role.',
+      );
+    }
+
+    final TimetableMember? memberToUpdate = await database.getTimetableMember(
+      (tbl) => tbl.id.equals(memberId) & tbl.timetableId.equals(timetableId),
+    );
+
+    if (memberToUpdate == null) {
+      throw const ApiException.badRequest('Member not found.');
+    }
+
+    if (memberToUpdate.role.isOwner) {
+      throw const ApiException.forbidden('Cannot update owner role.');
+    }
+
+    try {
+      await (database.timetableMembers.update()
+            ..where((tbl) => tbl.id.equals(memberId)))
+          .write(
+        TimetableMembersCompanion(
+          role: Value(roleEnum),
+        ),
+      );
+    } catch (e) {
+      throw const ApiException.internalServerError(
+        'Could not update member role.',
+      );
+    }
+
+    unawaited(
+      socket.sendUpdate(timetableId: timetableId),
+    );
+
+    return Response.ok(jsonEncode('Member role updated successfully.'));
   }
 }
