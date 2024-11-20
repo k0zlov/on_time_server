@@ -50,7 +50,7 @@ class MailServiceImpl implements MailService {
       ..recipients.add(email)
       ..subject = 'Activate your OnTime account'
       ..text =
-          'Activation link for your account: https://on_time.globeapp.dev/#/invitation/$activationCode'
+          'Activation link for your account:https://on-time-server.onrender.com/activation/$activationCode'
       ..html = '''
     <html lang="en">
       <body style="font-family: Arial, sans-serif; color: #333;">
@@ -58,7 +58,7 @@ class MailServiceImpl implements MailService {
         <p>Thanks for signing up with OnTime!</p>
         <p>Just one step left—click the button below to activate your account:</p>
         <p>
-          <a href="https://on_time.globeapp.dev/#/invitation/$activationCode" 
+          <a href="https://on-time-server.onrender.com/activation/$activationCode" 
              style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">
             Activate Account
           </a>
