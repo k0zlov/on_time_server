@@ -226,9 +226,7 @@ class AuthControllerImpl implements AuthController {
     }
 
     if (user.isActivated) {
-      throw const ApiException.badRequest(
-        'This user is already activated.',
-      );
+      return Response.found(activatinRedirectUrl);
     }
 
     final User newUser = user.copyWith(isActivated: true);
